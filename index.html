@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herbario Vigo — sitios vexetais para comer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --paper:#EEE8D6; --ink:#2E3B2A; --ink-soft:#55604F; --moss:#3E5A45;
+    --turmeric:#B8811E; --clay:#9C4F2C; --line:#C9BEA0; --card:#F6F1E2; --shadow:rgba(46,59,42,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);background-image:radial-gradient(circle at 1px 1px, rgba(46,59,42,0.055) 1px, transparent 0);background-size:22px 22px;color:var(--ink);font-family:'Work Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---- top bar ---- */
+  .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 22px;display:flex;justify-content:flex-end;align-items:center;gap:10px;}
+  .admin-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
+  .admin-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:100px;border:1px solid var(--moss);background:transparent;color:var(--moss);}
+  .admin-btn:hover{background:var(--moss);color:var(--paper);}
+  .admin-btn.on{background:var(--moss);color:var(--paper);}
+
+  .hero{padding:44px 22px 40px;max-width:760px;margin:0 auto;}
+  .hero .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--moss);display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+  .hero .eyebrow .leaf{width:14px;height:14px;flex:none;}
+  .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(38px,9vw,62px);line-height:.98;margin:0 0 18px;letter-spacing:-0.01em;}
+  .hero h1 em{font-style:italic;font-weight:500;color:var(--moss);}
+  .hero p.lede{font-size:16.5px;line-height:1.6;color:var(--ink-soft);max-width:52ch;margin:0 0 22px;}
+  .hero .note{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:var(--ink-soft);border-left:2px solid var(--turmeric);padding-left:12px;max-width:56ch;}
+
+  .legend-wrap{position:sticky;top:41px;z-index:5;background:linear-gradient(var(--paper) 82%, transparent);padding:14px 22px 10px;}
+  .legend{max-width:760px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
+  .chip:hover{border-color:var(--moss);}
+  .chip.active{background:var(--moss);border-color:var(--moss);color:var(--paper);}
+  .chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  main{max-width:760px;margin:0 auto;padding:8px 22px 80px;}
+  .section{margin-top:52px;}
+  .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .section-head .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--turmeric);background:rgba(184,129,30,0.12);padding:2px 8px;border-radius:4px;}
+  .section h2{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin:0;}
+  .section .desc{font-size:14px;color:var(--ink-soft);margin:6px 0 22px;max-width:56ch;line-height:1.55;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:14px 16px 14px 20px;position:relative;transition:.15s;}
+  .card:hover{box-shadow:0 4px 14px var(--shadow);}
+  .card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-color,var(--line));}
+  .card-top{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;}
+  .card .name{font-family:'Fraunces',serif;font-weight:500;font-size:17px;line-height:1.3;}
+  .card .name .loc{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;font-style:normal;}
+  .card .status{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:100px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
+  .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-top:6px;}
+  .card .links{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+  .card .links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);text-decoration:none;border-bottom:1px dotted var(--moss);padding-bottom:1px;}
+  .card .links a.search{color:var(--ink-soft);border-color:var(--ink-soft);}
+
+  .card[data-status="confirmado"]{--status-color:var(--moss);}
+  .card[data-status="opciones"]{--status-color:var(--turmeric);}
+  .card[data-status="probar"]{--status-color:var(--clay);}
+  .card[data-status="consultar"]{--status-color:#8B8264;}
+  .card.hide{display:none;}
+
+  .stars{font-size:12px;color:var(--turmeric);letter-spacing:1px;}
+  .reviews-summary{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
+  .review-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+  .review-item{font-size:12.5px;line-height:1.45;border-top:1px dashed var(--line);padding-top:6px;}
+  .review-item .rname{font-weight:600;color:var(--ink);}
+  .review-item .rbadge{font-family:'IBM Plex Mono',monospace;font-size:9.5px;background:var(--moss);color:var(--paper);padding:1px 6px;border-radius:100px;margin-left:6px;}
+  .review-item .rdel{float:right;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--clay);cursor:pointer;border-bottom:1px dotted var(--clay);}
+
+  .toggle-review{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);background:none;border:none;padding:0;border-bottom:1px dotted var(--moss);}
+  .review-form{display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,0.4);border:1px solid var(--line);border-radius:3px;}
+  .review-form.open{display:block;}
+  .review-form input[type=text], .review-form textarea{width:100%;font-family:'Work Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);margin-bottom:8px;}
+  .review-form textarea{resize:vertical;min-height:50px;}
+  .star-picker{display:flex;gap:4px;margin-bottom:8px;}
+  .star-picker span{font-size:20px;cursor:pointer;color:var(--line);}
+  .star-picker span.on{color:var(--turmeric);}
+  .review-form .submit-btn{font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
+  .admin-check{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);display:flex;align-items:center;gap:5px;margin-bottom:8px;}
+
+  .admin-edit{display:none;margin-top:8px;gap:6px;flex-direction:column;padding:8px;border:1px dashed var(--moss);border-radius:3px;}
+  .admin-edit.on{display:flex;}
+  .admin-edit textarea, .admin-edit select{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);}
+  .admin-edit .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 12px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);}
+  .admin-toggle-edit{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:6px;}
+  .admin-toggle-edit.show{display:inline-block;}
+
+  footer{max-width:760px;margin:0 auto;padding:30px 22px 60px;border-top:1px solid var(--line);}
+  footer p{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.7;max-width:58ch;}
+
+  .divider{display:flex;align-items:center;gap:10px;margin:56px 0 0;opacity:.55;}
+  .divider svg{width:18px;height:18px;flex:none;color:var(--moss);}
+  .divider .rule{flex:1;height:1px;background:var(--line);}
+
+  .login-box{display:none;position:fixed;top:52px;right:22px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;width:240px;box-shadow:0 8px 24px var(--shadow);z-index:20;}
+  .login-box.open{display:block;}
+  .login-box input{width:100%;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;margin-bottom:8px;background:var(--paper);}
+  .login-box button{width:100%;font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:7px;border-radius:4px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);margin-bottom:6px;}
+  .login-box .msg{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
+
+  @media (min-width:640px){.cards{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="admin-pill" id="adminPill"></div>
+  <button class="admin-btn" id="adminBtn">Acceso admin</button>
+</div>
+
+<div class="login-box" id="loginBox">
+  <div id="loginStep1">
+    <input type="text" id="loginEmail" placeholder="teu correo">
+    <button id="sendCodeBtn">Enviar código</button>
+  </div>
+  <div id="loginStep2" style="display:none;">
+    <input type="text" id="loginCode" placeholder="código de 6 díxitos">
+    <button id="verifyCodeBtn">Confirmar</button>
+  </div>
+  <div class="msg" id="loginMsg"></div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">
+    <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/><path d="M4 20c2-4 5-7 9-9"/></svg>
+    Caderno vivo · Vigo e arredores
+  </div>
+  <h1>Herbario<br><em>vexetal</em> de Vigo</h1>
+  <p class="lede">Base de datos compartida: valora, comenta e suxire sitios. As notas con selo verde son de Ricardo.</p>
+  <div class="note">Calquera pode deixar puntuación e comentario sen conta. As notas marcadas "Ricardo" só as pode publicar quen teña acceso admin.</div>
+</div>
+
+<div class="legend-wrap">
+  <div class="legend" id="legend">
+    <button class="chip active" data-filter="all">Todo</button>
+    <button class="chip" data-filter="confirmado"><span class="dot" style="background:var(--moss)"></span>100% vegano/vexetariano</button>
+    <button class="chip" data-filter="opciones"><span class="dot" style="background:var(--turmeric)"></span>Boas opcións</button>
+    <button class="chip" data-filter="probar"><span class="dot" style="background:var(--clay)"></span>Por probar</button>
+    <button class="chip" data-filter="consultar"><span class="dot" style="background:#8B8264"></span>A consultar</button>
+  </div>
+</div>
+
+<main id="main">
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando o herbario...</div>
+</main>
+
+<footer>
+  <p>Datos en Supabase, actualízanse en tempo real para todo o que teña o enlace. Se un sitio pecha ou cambia, calquera pode avisar por comentario — e Ricardo pode editar a ficha con acceso admin.</p>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://aybliczcuutagmvomdjq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_43QmCEZ878iivpQ57OSLbA_-4hEezar';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const STATUS_LABEL = {confirmado:"100% vegano", opciones:"Boas opcións", probar:"Por probar", consultar:"A consultar"};
+const SECTIONS = [
+  {key:"confirmado", tag:"Espécimes puros", title:"100% vexetariano / vegano", desc:"Os que non fallan nunca porque a carta enteira xa é vexetal."},
+  {key:"comida", tag:"Carta mixta", title:"Para comer", desc:"Restaurantes de carta omnívora con opción vexetal."},
+  {key:"desayuno", tag:"Mañá", title:"Almorzo e brunch"},
+  {key:"panaderias", tag:"Fariña", title:"Panadarías e cafés"},
+  {key:"furanchos", tag:"Vendima", title:"Furanchos", desc:"O vexetal depende da tapa da casa, o viño sempre é seguro."}
+];
+
+let currentUser = null;
+let isAdmin = false;
+let placesData = [];
+let reviewsByPlace = {};
+
+const igSearch = name => `https://www.google.com/search?q=${encodeURIComponent(name + ' Vigo instagram')}`;
+
+async function loadData(){
+  const { data: places, error: pErr } = await sb.from('places').select('*').order('category').order('sort_order');
+  const { data: reviews, error: rErr } = await sb.from('reviews').select('*').order('created_at', {ascending:false});
+  if(pErr || rErr){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + (pErr?.message || rErr?.message); return; }
+  placesData = places;
+  reviewsByPlace = {};
+  (reviews||[]).forEach(r => { (reviewsByPlace[r.place_id] = reviewsByPlace[r.place_id] || []).push(r); });
+  render();
+}
+
+function starsHTML(avg){
+  const full = Math.round(avg);
+  return '★'.repeat(full) + '☆'.repeat(5-full);
+}
+
+function reviewsBlock(place){
+  const revs = reviewsByPlace[place.id] || [];
+  const avg = revs.length ? (revs.reduce((s,r)=>s+r.rating,0)/revs.length) : null;
+  const adminRev = revs.find(r=>r.is_admin);
+  let html = `<div class="reviews-summary">`;
+  if(avg){ html += `<span class="stars">${starsHTML(avg)}</span><span>${avg.toFixed(1)} · ${revs.length} valoración${revs.length!==1?'s':''}</span>`; }
+  else { html += `<span>Sen valoracións aínda</span>`; }
+  html += `</div>`;
+  if(revs.length){
+    html += `<div class="review-list">` + revs.map(r => `
+      <div class="review-item" data-review-id="${r.id}">
+        ${isAdmin ? `<span class="rdel" onclick="deleteReview('${r.id}','${place.id}')">borrar</span>` : ''}
+        <span class="rname">${escapeHTML(r.author_name)}</span>${r.is_admin ? '<span class="rbadge">Ricardo</span>' : ''}
+        <span class="stars">${starsHTML(r.rating)}</span>
+        ${r.comment ? `<div>${escapeHTML(r.comment)}</div>` : ''}
+      </div>`).join('') + `</div>`;
+  }
+  return html;
+}
+
+function escapeHTML(s){ const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+
+function cardHTML(place){
+  const ig = place.instagram_url
+    ? `<a href="${place.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
+    : `<a class="search" href="${igSearch(place.name)}" target="_blank" rel="noopener">🔍 Buscar en Instagram</a>`;
+  const maps = place.maps_url ? `<a href="${place.maps_url}" target="_blank" rel="noopener">📍 Maps</a>` : '';
+  return `
+  <div class="card" data-status="${place.status}" data-id="${place.id}">
+    <div class="card-top">
+      <div class="name">${escapeHTML(place.name)}${place.location ? `<span class="loc">${escapeHTML(place.location)}</span>` : ''}</div>
+      <div class="status">${STATUS_LABEL[place.status]}</div>
+    </div>
+    <div class="note" id="note-${place.id}">${escapeHTML(place.note||'')}</div>
+    <div class="links">${maps}${ig}</div>
+    ${reviewsBlock(place)}
+    <button class="toggle-review" onclick="toggleReviewForm('${place.id}')">+ deixar valoración</button>
+    <div class="review-form" id="form-${place.id}">
+      <input type="text" id="rname-${place.id}" placeholder="O teu nome">
+      <div class="star-picker" id="stars-${place.id}">${[1,2,3,4,5].map(n=>`<span data-n="${n}" onclick="setStars('${place.id}',${n})">★</span>`).join('')}</div>
+      <textarea id="rcomment-${place.id}" placeholder="Comentario (opcional)"></textarea>
+      ${isAdmin ? `<div class="admin-check"><input type="checkbox" id="radmin-${place.id}"> publicar como nota de Ricardo</div>` : ''}
+      <button class="submit-btn" onclick="submitReview('${place.id}')">Enviar</button>
+    </div>
+    <button class="admin-toggle-edit ${isAdmin?'show':''}" onclick="toggleEdit('${place.id}')">✎ editar ficha</button>
+    <div class="admin-edit" id="edit-${place.id}">
+      <textarea id="editnote-${place.id}" rows="3">${escapeHTML(place.note||'')}</textarea>
+      <select id="editstatus-${place.id}">
+        ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}" ${s===place.status?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+      </select>
+      <button class="save-btn" onclick="saveEdit('${place.id}')">Gardar</button>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  SECTIONS.forEach((sec, i) => {
+    const items = placesData.filter(p => p.category === sec.key);
+    if(!items.length) return;
+    if(i>0){
+      main.innerHTML += `<div class="divider"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/></svg><div class="rule"></div></div>`;
+    }
+    main.innerHTML += `
+      <section class="section">
+        <div class="section-head"><span class="tag">${sec.tag}</span></div>
+        <h2>${sec.title}</h2>
+        ${sec.desc ? `<p class="desc">${sec.desc}</p>` : ''}
+        <div class="cards">${items.map(cardHTML).join('')}</div>
+      </section>`;
+  });
+  applyFilter();
+}
+
+function toggleReviewForm(id){
+  document.getElementById('form-'+id).classList.toggle('open');
+}
+function toggleEdit(id){
+  document.getElementById('edit-'+id).classList.toggle('on');
+}
+function setStars(id, n){
+  const picker = document.getElementById('stars-'+id);
+  picker.dataset.value = n;
+  [...picker.children].forEach(s => s.classList.toggle('on', +s.dataset.n <= n));
+}
+
+async function submitReview(placeId){
+  const name = document.getElementById('rname-'+placeId).value.trim();
+  const comment = document.getElementById('rcomment-'+placeId).value.trim();
+  const stars = +(document.getElementById('stars-'+placeId).dataset.value || 0);
+  const asAdmin = isAdmin && document.getElementById('radmin-'+placeId) && document.getElementById('radmin-'+placeId).checked;
+  if(!name || !stars){ alert('Pon o teu nome e escolle unha puntuación (estrelas).'); return; }
+  const { error } = await sb.from('reviews').insert({ place_id: placeId, author_name: name, rating: stars, comment: comment || null, is_admin: !!asAdmin });
+  if(error){ alert('Erro: ' + error.message); return; }
+  await loadData();
+}
+
+async function deleteReview(reviewId, placeId){
+  if(!confirm('Borrar esta valoración?')) return;
+  const { error } = await sb.from('reviews').delete().eq('id', reviewId);
+  if(error){ alert('Erro: ' + error.message); return; }
+  await loadData();
+}
+
+async function saveEdit(placeId){
+  const note = document.getElementById('editnote-'+placeId).value;
+  const status = document.getElementById('editstatus-'+placeId).value;
+  const { error } = await sb.from('places').update({ note, status }).eq('id', placeId);
+  if(error){ alert('Erro ao gardar: ' + error.message); return; }
+  await loadData();
+}
+
+const chips = () => document.querySelectorAll('.chip');
+document.getElementById('legend').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  chips().forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  applyFilter();
+});
+function applyFilter(){
+  const active = document.querySelector('.chip.active');
+  const filter = active ? active.dataset.filter : 'all';
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.toggle('hide', !(filter==='all' || card.dataset.status===filter));
+  });
+}
+
+/* ---- admin auth (email OTP code, no redirect needed) ---- */
+const adminBtn = document.getElementById('adminBtn');
+const loginBox = document.getElementById('loginBox');
+const adminPill = document.getElementById('adminPill');
+
+adminBtn.addEventListener('click', () => {
+  if(isAdmin){ sb.auth.signOut(); return; }
+  loginBox.classList.toggle('open');
+});
+
+document.getElementById('sendCodeBtn').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email) return;
+  document.getElementById('loginMsg').textContent = 'Enviando...';
+  const { error } = await sb.auth.signInWithOtp({ email });
+  if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
+  document.getElementById('loginStep1').style.display = 'none';
+  document.getElementById('loginStep2').style.display = 'block';
+  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e pon o código.';
+});
+
+document.getElementById('verifyCodeBtn').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const token = document.getElementById('loginCode').value.trim();
+  const { error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
+  if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
+  loginBox.classList.remove('open');
+});
+
+async function checkAdmin(){
+  const { data: { user } } = await sb.auth.getUser();
+  currentUser = user;
+  if(!user){ isAdmin = false; updateAdminUI(); return; }
+  const { data } = await sb.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
+  isAdmin = !!data;
+  updateAdminUI();
+}
+
+function updateAdminUI(){
+  if(isAdmin){
+    adminBtn.textContent = 'Saír (admin)';
+    adminBtn.classList.add('on');
+    adminPill.textContent = currentUser ? currentUser.email : '';
+  } else if(currentUser){
+    adminBtn.textContent = 'Acceso admin';
+    adminBtn.classList.remove('on');
+    adminPill.textContent = '(sen permisos admin)';
+  } else {
+    adminBtn.textContent = 'Acceso admin';
+    adminBtn.classList.remove('on');
+    adminPill.textContent = '';
+  }
+  render();
+}
+
+sb.auth.onAuthStateChange((_event, _session) => { checkAdmin(); });
+
+checkAdmin();
+loadData();
+</script>
+
+</body>
+</html>
