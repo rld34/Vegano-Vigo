@@ -11,7 +11,7 @@
 <style>
   :root{
     --paper:#EEE8D6; --ink:#2E3B2A; --ink-soft:#55604F; --moss:#3E5A45;
-    --turmeric:#B8811E; --clay:#9C4F2C; --line:#C9BEA0; --card:#F6F1E2; --shadow:rgba(46,59,42,0.14);
+    --turmeric:#B8811E; --clay:#9C4F2C; --gray:#8B8264; --line:#C9BEA0; --card:#F6F1E2; --shadow:rgba(46,59,42,0.14);
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -34,9 +34,15 @@
   .hero p.lede{font-size:16.5px;line-height:1.6;color:var(--ink-soft);max-width:52ch;margin:0 0 22px;}
   .hero .note{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:var(--ink-soft);border-left:2px solid var(--turmeric);padding-left:12px;max-width:56ch;}
 
-  .legend-wrap{position:sticky;top:41px;z-index:5;background:linear-gradient(var(--paper) 82%, transparent);padding:14px 22px 10px;}
-  .legend{max-width:760px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;}
-  .chip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
+  .filter-wrap{position:sticky;top:41px;z-index:5;background:linear-gradient(var(--paper) 88%, transparent);padding:14px 22px 12px;}
+  .filter-inner{max-width:760px;margin:0 auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:10px;}
+  .search-row{display:flex;gap:8px;}
+  .search-row input{flex:1;font-family:'Work Sans',sans-serif;font-size:13.5px;padding:8px 12px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
+  .search-row input::placeholder{color:var(--ink-soft);}
+  .sort-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 12px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);white-space:nowrap;}
+  .sort-btn.on{background:var(--turmeric);border-color:var(--turmeric);color:var(--paper);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
   .chip:hover{border-color:var(--moss);}
   .chip.active{background:var(--moss);border-color:var(--moss);color:var(--paper);}
   .chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
@@ -47,6 +53,7 @@
   .section-head .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--turmeric);background:rgba(184,129,30,0.12);padding:2px 8px;border-radius:4px;}
   .section h2{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin:0;}
   .section .desc{font-size:14px;color:var(--ink-soft);margin:6px 0 22px;max-width:56ch;line-height:1.55;}
+  .empty-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);padding:8px 0;}
 
   .cards{display:grid;grid-template-columns:1fr;gap:10px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:14px 16px 14px 20px;position:relative;transition:.15s;}
@@ -58,15 +65,16 @@
   .card .badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
   .card .status{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:100px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
   .card .score{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap;background:var(--moss);color:var(--paper);}
-  .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-top:6px;}
+  .card .cuisine{display:inline-block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--moss);background:rgba(62,90,69,0.1);padding:2px 8px;border-radius:100px;}
+  .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-top:8px;}
   .card .links{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
   .card .links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);text-decoration:none;border-bottom:1px dotted var(--moss);padding-bottom:1px;}
   .card .links a.search{color:var(--ink-soft);border-color:var(--ink-soft);}
 
-  .card[data-status="confirmado"]{--status-color:var(--moss);}
-  .card[data-status="opciones"]{--status-color:var(--turmeric);}
-  .card[data-status="probar"]{--status-color:var(--clay);}
-  .card[data-status="consultar"]{--status-color:#8B8264;}
+  .card[data-vegan="vegano_100"]{--status-color:var(--moss);}
+  .card[data-vegan="vexetariano"]{--status-color:var(--turmeric);}
+  .card[data-vegan="opciones"]{--status-color:var(--clay);}
+  .card[data-vegan="sen_confirmar"]{--status-color:var(--gray);}
   .card.hide{display:none;}
 
   .admin-toggle-edit{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:8px;margin-right:14px;}
@@ -128,13 +136,24 @@
   <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
 </div>
 
-<div class="legend-wrap">
-  <div class="legend" id="legend">
-    <button class="chip active" data-filter="all">Todo</button>
-    <button class="chip" data-filter="confirmado"><span class="dot" style="background:var(--moss)"></span>100% vegano/vexetariano</button>
-    <button class="chip" data-filter="opciones"><span class="dot" style="background:var(--turmeric)"></span>Boas opcións</button>
-    <button class="chip" data-filter="probar"><span class="dot" style="background:var(--clay)"></span>Por probar</button>
-    <button class="chip" data-filter="consultar"><span class="dot" style="background:#8B8264"></span>A consultar</button>
+<div class="filter-wrap">
+  <div class="filter-inner">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Buscar por nome, zona ou tipo de comida (ex. ramen, brunch...)">
+      <button class="sort-btn" id="sortBtn">Nota ↓</button>
+    </div>
+    <div class="chip-row" id="veganLegend">
+      <button class="chip active" data-vfilter="all">Todo</button>
+      <button class="chip" data-vfilter="vegano_100"><span class="dot" style="background:var(--moss)"></span>100% vegano</button>
+      <button class="chip" data-vfilter="vexetariano"><span class="dot" style="background:var(--turmeric)"></span>Vexetariano</button>
+      <button class="chip" data-vfilter="opciones"><span class="dot" style="background:var(--clay)"></span>Opcións veganas</button>
+      <button class="chip" data-vfilter="sen_confirmar"><span class="dot" style="background:var(--gray)"></span>Sen confirmar</button>
+    </div>
+    <div class="chip-row" id="triedLegend">
+      <button class="chip active" data-tfilter="all">Todo</button>
+      <button class="chip" data-tfilter="tried">✓ Probado</button>
+      <button class="chip" data-tfilter="untried">○ Por probar</button>
+    </div>
   </div>
 </div>
 
@@ -143,7 +162,7 @@
 </main>
 
 <footer>
-  <p>Datos en Supabase, actualízanse en tempo real. Nerea e Ricardo poden editar calquera ficha (nome, categoría, estado, nota sobre 10, Maps, Instagram) ou engadir/eliminar sitios con acceso admin.</p>
+  <p>Datos en Supabase, actualízanse en tempo real. Nerea e Ricardo poden editar calquera ficha (nome, tipo de local, tipo de vegano, nota /10, tipo de comida, Maps, Instagram) ou engadir/eliminar sitios con acceso admin.</p>
 </footer>
 
 <script>
@@ -151,25 +170,29 @@ const SUPABASE_URL = 'https://aybliczcuutagmvomdjq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_43QmCEZ878iivpQ57OSLbA_-4hEezar';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const STATUS_LABEL = {confirmado:"100% vegano", opciones:"Boas opcións", probar:"Por probar", consultar:"A consultar"};
-const SECTIONS = [
-  {key:"confirmado", tag:"Espécimes puros", title:"100% vexetariano / vegano", desc:"Os que non fallan nunca porque a carta enteira xa é vexetal."},
-  {key:"comida", tag:"Carta mixta", title:"Para comer", desc:"Restaurantes de carta omnívora con opción vexetal."},
-  {key:"desayuno", tag:"Mañá", title:"Almorzo e brunch"},
-  {key:"panaderias", tag:"Fariña", title:"Panadarías e cafés"},
-  {key:"furanchos", tag:"Vendima", title:"Furanchos", desc:"O vexetal depende da tapa da casa, o viño sempre é seguro."}
+const VEGAN_LABEL = {vegano_100:"100% vegano", vexetariano:"Vexetariano", opciones:"Opcións veganas", sen_confirmar:"Sen confirmar"};
+const PLACE_TYPES = [
+  {key:"restaurante", tag:"Para comer", title:"Restaurantes", desc:"Carta con opción vexetal, dende 100% vegana até \"pregunta e adaptan\"."},
+  {key:"brunch", tag:"Mañá", title:"Brunch e almorzo"},
+  {key:"panadaria", tag:"Fariña", title:"Panadarías e cafés"},
+  {key:"heladeria", tag:"Frío", title:"Xeados"},
+  {key:"furancho", tag:"Vendima", title:"Furanchos", desc:"O vexetal depende da tapa da casa, o viño sempre é seguro."}
 ];
 
 let currentUser = null;
 let isAdmin = false;
 let placesData = [];
+let vFilter = 'all';
+let tFilter = 'all';
+let searchTerm = '';
+let sortByScore = false;
 
 const igSearch = name => `https://www.google.com/search?q=${encodeURIComponent(name + ' Vigo instagram')}`;
 const escapeHTML = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
 const escapeAttr = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 async function loadData(){
-  const { data: places, error } = await sb.from('places').select('*').order('category').order('sort_order');
+  const { data: places, error } = await sb.from('places').select('*').order('place_type').order('sort_order');
   if(error){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + error.message; return; }
   placesData = places;
   render();
@@ -181,12 +204,14 @@ function cardHTML(place){
     : `<a class="search" href="${igSearch(place.name)}" target="_blank" rel="noopener">🔍 Buscar en Instagram</a>`;
   const maps = place.maps_url ? `<a href="${place.maps_url}" target="_blank" rel="noopener">📍 Maps</a>` : '';
   const scoreBadge = (place.score !== null && place.score !== undefined) ? `<div class="score">${Number(place.score)}/10</div>` : '';
+  const cuisine = place.cuisine_tag ? `<span class="cuisine">${escapeHTML(place.cuisine_tag)}</span>` : '';
   return `
-  <div class="card" data-status="${place.status}" data-id="${place.id}">
+  <div class="card" data-vegan="${place.vegan_status}" data-tried="${place.score !== null ? 'tried' : 'untried'}" data-id="${place.id}">
     <div class="card-top">
       <div class="name">${escapeHTML(place.name)}${place.location ? `<span class="loc">${escapeHTML(place.location)}</span>` : ''}</div>
-      <div class="badges"><div class="status">${STATUS_LABEL[place.status]}</div>${scoreBadge}</div>
+      <div class="badges"><div class="status">${VEGAN_LABEL[place.vegan_status]}</div>${scoreBadge}</div>
     </div>
+    ${cuisine}
     <div class="note">${escapeHTML(place.note||'')}</div>
     <div class="links">${maps}${ig}</div>
     <button class="admin-toggle-edit ${isAdmin?'show':''}" onclick="toggleEdit('${place.id}')">✎ editar ficha</button>
@@ -198,19 +223,21 @@ function cardHTML(place){
       <input type="text" id="editloc-${place.id}" value="${escapeAttr(place.location||'')}">
       <div class="row2">
         <div>
-          <label>Sección</label>
-          <select id="editcategory-${place.id}">
-            ${SECTIONS.map(s=>`<option value="${s.key}" ${s.key===place.category?'selected':''}>${s.title}</option>`).join('')}
+          <label>Tipo de local</label>
+          <select id="editptype-${place.id}">
+            ${PLACE_TYPES.map(s=>`<option value="${s.key}" ${s.key===place.place_type?'selected':''}>${s.title}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label>Estado</label>
-          <select id="editstatus-${place.id}">
-            ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}" ${s===place.status?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+          <label>Vegano?</label>
+          <select id="editvegan-${place.id}">
+            ${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}" ${s===place.vegan_status?'selected':''}>${VEGAN_LABEL[s]}</option>`).join('')}
           </select>
         </div>
       </div>
-      <label>Nota (0–10, deixa baleiro se non hai)</label>
+      <label>Tipo de comida (ex. pizza, ramen, hamburguesas)</label>
+      <input type="text" id="editcuisine-${place.id}" value="${escapeAttr(place.cuisine_tag||'')}">
+      <label>Nota (0–10, deixa baleiro se aínda non probastes)</label>
       <input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
       <label>Ligazón Google Maps</label>
       <input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
@@ -232,11 +259,12 @@ function addPlaceFormHTML(sectionKey){
       <input type="text" id="${uid}-name" placeholder="Nome">
       <input type="text" id="${uid}-loc" placeholder="Localización (opcional)">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <select id="${uid}-status">
-          ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join('')}
+        <select id="${uid}-vegan">
+          ${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}">${VEGAN_LABEL[s]}</option>`).join('')}
         </select>
         <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
       </div>
+      <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida (ex. pizza, ramen...)">
       <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
       <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
       <textarea id="${uid}-note" rows="2" placeholder="Nota / descrición"></textarea>
@@ -245,12 +273,30 @@ function addPlaceFormHTML(sectionKey){
   </details>`;
 }
 
+function getFilteredSorted(items){
+  let out = items.filter(p => {
+    if(vFilter !== 'all' && p.vegan_status !== vFilter) return false;
+    if(tFilter === 'tried' && p.score === null) return false;
+    if(tFilter === 'untried' && p.score !== null) return false;
+    if(searchTerm){
+      const hay = `${p.name} ${p.location||''} ${p.note||''} ${p.cuisine_tag||''}`.toLowerCase();
+      if(!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
+  if(sortByScore){
+    out = out.slice().sort((a,b) => (b.score ?? -1) - (a.score ?? -1));
+  }
+  return out;
+}
+
 function render(){
   const main = document.getElementById('main');
   main.innerHTML = '';
-  SECTIONS.forEach((sec, i) => {
-    const items = placesData.filter(p => p.category === sec.key);
-    if(!items.length && !isAdmin) return;
+  PLACE_TYPES.forEach((sec, i) => {
+    const all = placesData.filter(p => p.place_type === sec.key);
+    const items = getFilteredSorted(all);
+    if(!all.length && !isAdmin) return;
     if(i>0){
       main.innerHTML += `<div class="divider"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/></svg><div class="rule"></div></div>`;
     }
@@ -259,10 +305,10 @@ function render(){
         <div class="section-head"><span class="tag">${sec.tag}</span></div>
         <h2>${sec.title}</h2>
         ${sec.desc ? `<p class="desc">${sec.desc}</p>` : ''}
+        ${(!items.length) ? `<div class="empty-msg">Ningún resultado con estes filtros.</div>` : ''}
         <div class="cards">${items.map(cardHTML).join('')}${isAdmin ? addPlaceFormHTML(sec.key) : ''}</div>
       </section>`;
   });
-  applyFilter();
 }
 
 function toggleEdit(id){
@@ -275,8 +321,9 @@ async function saveEdit(placeId){
   const payload = {
     name: document.getElementById('editname-'+placeId).value.trim(),
     location: document.getElementById('editloc-'+placeId).value.trim() || null,
-    category: document.getElementById('editcategory-'+placeId).value,
-    status: document.getElementById('editstatus-'+placeId).value,
+    place_type: document.getElementById('editptype-'+placeId).value,
+    vegan_status: document.getElementById('editvegan-'+placeId).value,
+    cuisine_tag: document.getElementById('editcuisine-'+placeId).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
     instagram_url: igVal || null,
@@ -301,39 +348,50 @@ async function addPlace(sectionKey){
   if(!name){ alert('Pon polo menos o nome.'); return; }
   const scoreVal = document.getElementById(`${uid}-score`).value;
   const igVal = document.getElementById(`${uid}-ig`).value.trim();
-  const maxSort = Math.max(0, ...placesData.filter(p=>p.category===sectionKey).map(p=>p.sort_order||0));
+  const maxSort = Math.max(0, ...placesData.filter(p=>p.place_type===sectionKey).map(p=>p.sort_order||0));
   const payload = {
     name,
     location: document.getElementById(`${uid}-loc`).value.trim() || null,
-    category: sectionKey,
-    status: document.getElementById(`${uid}-status`).value,
+    place_type: sectionKey,
+    vegan_status: document.getElementById(`${uid}-vegan`).value,
+    cuisine_tag: document.getElementById(`${uid}-cuisine`).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
     instagram_url: igVal || null,
     instagram_verified: !!igVal,
     note: document.getElementById(`${uid}-note`).value,
-    sort_order: maxSort + 1
+    sort_order: maxSort + 1,
+    category: 'comida',
+    status: 'opciones'
   };
   const { error } = await sb.from('places').insert(payload);
   if(error){ alert('Erro ao engadir: ' + error.message); return; }
   await loadData();
 }
 
-const chips = () => document.querySelectorAll('.chip');
-document.getElementById('legend').addEventListener('click', e => {
-  const chip = e.target.closest('.chip');
-  if(!chip) return;
-  chips().forEach(c => c.classList.remove('active'));
+document.getElementById('veganLegend').addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if(!chip) return;
+  document.querySelectorAll('#veganLegend .chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
-  applyFilter();
+  vFilter = chip.dataset.vfilter;
+  render();
 });
-function applyFilter(){
-  const active = document.querySelector('.chip.active');
-  const filter = active ? active.dataset.filter : 'all';
-  document.querySelectorAll('.card').forEach(card => {
-    card.classList.toggle('hide', !(filter==='all' || card.dataset.status===filter));
-  });
-}
+document.getElementById('triedLegend').addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if(!chip) return;
+  document.querySelectorAll('#triedLegend .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  tFilter = chip.dataset.tfilter;
+  render();
+});
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  render();
+});
+document.getElementById('sortBtn').addEventListener('click', () => {
+  sortByScore = !sortByScore;
+  document.getElementById('sortBtn').classList.toggle('on', sortByScore);
+  render();
+});
 
 /* ---- admin auth (magic link) ---- */
 const adminBtn = document.getElementById('adminBtn');
