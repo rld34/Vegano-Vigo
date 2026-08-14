@@ -339,8 +339,8 @@ document.getElementById('sendCodeBtn').addEventListener('click', async () => {
   const { error } = await sb.auth.signInWithOtp({ email });
   if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
   document.getElementById('loginStep1').style.display = 'none';
-  document.getElementById('loginStep2').style.display = 'block';
-  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e pon o código.';
+  document.getElementById('loginStep2').style.display = 'none';
+  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e preme na ligazón que che chegou. Non fai falta código, ao premer volves aquí xa identificado.';
 });
 
 document.getElementById('verifyCodeBtn').addEventListener('click', async () => {
@@ -351,11 +351,9 @@ document.getElementById('verifyCodeBtn').addEventListener('click', async () => {
   loginBox.classList.remove('open');
 });
 
-async function checkAdmin(){
-  const { data: { user } } = await sb.auth.getUser();
-  currentUser = user;
-  if(!user){ isAdmin = false; updateAdminUI(); return; }
-  const { data } = await sb.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
+async function checkAdminFromUser(){
+  if(!currentUser){ isAdmin = false; updateAdminUI(); return; }
+  const { data } = await sb.from('admins').select('user_id').eq('user_id', currentUser.id).maybeSingle();
   isAdmin = !!data;
   updateAdminUI();
 }
@@ -377,10 +375,12 @@ function updateAdminUI(){
   render();
 }
 
-sb.auth.onAuthStateChange((_event, _session) => { checkAdmin(); });
-
-checkAdmin();
-loadData();
+let initialLoadDone = false;
+sb.auth.onAuthStateChange(async (_event, session) => {
+  currentUser = session ? session.user : null;
+  await checkAdminFromUser();
+  if(!initialLoadDone){ initialLoadDone = true; loadData(); }
+});
 </script>
 
 </body>
