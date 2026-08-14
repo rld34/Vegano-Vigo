@@ -203,6 +203,7 @@ function cardHTML(place){
     ? `<a href="${place.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
     : `<a class="search" href="${igSearch(place.name)}" target="_blank" rel="noopener">🔍 Buscar en Instagram</a>`;
   const maps = place.maps_url ? `<a href="${place.maps_url}" target="_blank" rel="noopener">📍 Maps</a>` : '';
+  const web = place.website_url ? `<a href="${place.website_url}" target="_blank" rel="noopener">🌐 Web</a>` : '';
   const scoreBadge = (place.score !== null && place.score !== undefined) ? `<div class="score">${Number(place.score)}/10</div>` : '';
   const cuisine = place.cuisine_tag ? `<span class="cuisine">${escapeHTML(place.cuisine_tag)}</span>` : '';
   return `
@@ -213,7 +214,7 @@ function cardHTML(place){
     </div>
     ${cuisine}
     <div class="note">${escapeHTML(place.note||'')}</div>
-    <div class="links">${maps}${ig}</div>
+    <div class="links">${maps}${web}${ig}</div>
     <button class="admin-toggle-edit ${isAdmin?'show':''}" onclick="toggleEdit('${place.id}')">✎ editar ficha</button>
     <button class="admin-del ${isAdmin?'show':''}" onclick="deletePlace('${place.id}','${escapeAttr(place.name)}')">🗑 eliminar</button>
     <div class="admin-edit" id="edit-${place.id}">
@@ -241,6 +242,8 @@ function cardHTML(place){
       <input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
       <label>Ligazón Google Maps</label>
       <input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
+      <label>Web propia ou carta (opcional)</label>
+      <input type="text" id="editweb-${place.id}" value="${escapeAttr(place.website_url||'')}">
       <label>Ligazón Instagram (baleiro = busca automática)</label>
       <input type="text" id="editig-${place.id}" value="${escapeAttr(place.instagram_url||'')}">
       <label>Nota / descrición</label>
@@ -266,6 +269,7 @@ function addPlaceFormHTML(sectionKey){
       </div>
       <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida (ex. pizza, ramen...)">
       <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
+      <input type="text" id="${uid}-web" placeholder="Web propia ou carta (opcional)">
       <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
       <textarea id="${uid}-note" rows="2" placeholder="Nota / descrición"></textarea>
       <button class="save-btn" onclick="addPlace('${sectionKey}')">Engadir</button>
@@ -326,6 +330,7 @@ async function saveEdit(placeId){
     cuisine_tag: document.getElementById('editcuisine-'+placeId).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
+    website_url: document.getElementById('editweb-'+placeId).value.trim() || null,
     instagram_url: igVal || null,
     instagram_verified: !!igVal,
     note: document.getElementById('editnote-'+placeId).value
@@ -357,6 +362,7 @@ async function addPlace(sectionKey){
     cuisine_tag: document.getElementById(`${uid}-cuisine`).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
+    website_url: document.getElementById(`${uid}-web`).value.trim() || null,
     instagram_url: igVal || null,
     instagram_verified: !!igVal,
     note: document.getElementById(`${uid}-note`).value,
