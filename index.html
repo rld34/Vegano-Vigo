@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Herbario Vigo — sitios vexetais para comer</title>
+<title>Vigo vegano — sitios vexetais para comer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,7 +20,6 @@
   a{color:inherit;}
   button{font-family:inherit;cursor:pointer;}
 
-  /* ---- top bar ---- */
   .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 22px;display:flex;justify-content:flex-end;align-items:center;gap:10px;}
   .admin-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
   .admin-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:100px;border:1px solid var(--moss);background:transparent;color:var(--moss);}
@@ -56,7 +55,9 @@
   .card-top{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;}
   .card .name{font-family:'Fraunces',serif;font-weight:500;font-size:17px;line-height:1.3;}
   .card .name .loc{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;font-style:normal;}
+  .card .badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
   .card .status{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:100px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
+  .card .score{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap;background:var(--moss);color:var(--paper);}
   .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-top:6px;}
   .card .links{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
   .card .links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);text-decoration:none;border-bottom:1px dotted var(--moss);padding-bottom:1px;}
@@ -68,31 +69,23 @@
   .card[data-status="consultar"]{--status-color:#8B8264;}
   .card.hide{display:none;}
 
-  .stars{font-size:12px;color:var(--turmeric);letter-spacing:1px;}
-  .reviews-summary{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
-  .review-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
-  .review-item{font-size:12.5px;line-height:1.45;border-top:1px dashed var(--line);padding-top:6px;}
-  .review-item .rname{font-weight:600;color:var(--ink);}
-  .review-item .rbadge{font-family:'IBM Plex Mono',monospace;font-size:9.5px;background:var(--moss);color:var(--paper);padding:1px 6px;border-radius:100px;margin-left:6px;}
-  .review-item .rdel{float:right;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--clay);cursor:pointer;border-bottom:1px dotted var(--clay);}
-
-  .toggle-review{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);background:none;border:none;padding:0;border-bottom:1px dotted var(--moss);}
-  .review-form{display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,0.4);border:1px solid var(--line);border-radius:3px;}
-  .review-form.open{display:block;}
-  .review-form input[type=text], .review-form textarea{width:100%;font-family:'Work Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);margin-bottom:8px;}
-  .review-form textarea{resize:vertical;min-height:50px;}
-  .star-picker{display:flex;gap:4px;margin-bottom:8px;}
-  .star-picker span{font-size:20px;cursor:pointer;color:var(--line);}
-  .star-picker span.on{color:var(--turmeric);}
-  .review-form .submit-btn{font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
-  .admin-check{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);display:flex;align-items:center;gap:5px;margin-bottom:8px;}
-
-  .admin-edit{display:none;margin-top:8px;gap:6px;flex-direction:column;padding:8px;border:1px dashed var(--moss);border-radius:3px;}
-  .admin-edit.on{display:flex;}
-  .admin-edit textarea, .admin-edit select{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);}
-  .admin-edit .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 12px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);}
-  .admin-toggle-edit{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:6px;}
+  .admin-toggle-edit{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:8px;margin-right:14px;}
   .admin-toggle-edit.show{display:inline-block;}
+  .admin-del{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--clay);background:none;border:none;padding:0;border-bottom:1px dotted var(--clay);margin-top:8px;}
+  .admin-del.show{display:inline-block;}
+
+  .admin-edit{display:none;margin-top:10px;gap:7px;flex-direction:column;padding:10px;border:1px dashed var(--moss);border-radius:3px;background:rgba(255,255,255,0.35);}
+  .admin-edit.on{display:flex;}
+  .admin-edit label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:-4px;}
+  .admin-edit input, .admin-edit textarea, .admin-edit select{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);width:100%;}
+  .admin-edit .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .admin-edit .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);margin-top:4px;}
+
+  .add-place{margin-top:14px;padding:12px;border:1px dashed var(--moss);border-radius:3px;grid-column:1/-1;}
+  .add-place summary{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--moss);cursor:pointer;}
+  .add-place .fields{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+  .add-place input, .add-place select, .add-place textarea{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--card);width:100%;}
+  .add-place .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
 
   footer{max-width:760px;margin:0 auto;padding:30px 22px 60px;border-top:1px solid var(--line);}
   footer p{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.7;max-width:58ch;}
@@ -122,10 +115,6 @@
     <input type="text" id="loginEmail" placeholder="teu correo">
     <button id="sendCodeBtn">Enviar código</button>
   </div>
-  <div id="loginStep2" style="display:none;">
-    <input type="text" id="loginCode" placeholder="código de 6 díxitos">
-    <button id="verifyCodeBtn">Confirmar</button>
-  </div>
   <div class="msg" id="loginMsg"></div>
 </div>
 
@@ -134,9 +123,9 @@
     <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/><path d="M4 20c2-4 5-7 9-9"/></svg>
     Caderno vivo · Vigo e arredores
   </div>
-  <h1>Herbario<br><em>vexetal</em> de Vigo</h1>
-  <p class="lede">Base de datos compartida: valora, comenta e suxire sitios. As notas con selo verde son de Ricardo.</p>
-  <div class="note">Calquera pode deixar puntuación e comentario sen conta. As notas marcadas "Ricardo" só as pode publicar quen teña acceso admin.</div>
+  <h1>Vigo <em>vegano</em></h1>
+  <p class="lede">Catálogo persoal de sitios vexetais para comer en Vigo, con nota sobre 10 posta por Nerea e Ricardo.</p>
+  <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
 </div>
 
 <div class="legend-wrap">
@@ -150,11 +139,11 @@
 </div>
 
 <main id="main">
-  <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando o herbario...</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando...</div>
 </main>
 
 <footer>
-  <p>Datos en Supabase, actualízanse en tempo real para todo o que teña o enlace. Se un sitio pecha ou cambia, calquera pode avisar por comentario — e Ricardo pode editar a ficha con acceso admin.</p>
+  <p>Datos en Supabase, actualízanse en tempo real. Nerea e Ricardo poden editar calquera ficha (nome, categoría, estado, nota sobre 10, Maps, Instagram) ou engadir/eliminar sitios con acceso admin.</p>
 </footer>
 
 <script>
@@ -174,78 +163,86 @@ const SECTIONS = [
 let currentUser = null;
 let isAdmin = false;
 let placesData = [];
-let reviewsByPlace = {};
 
 const igSearch = name => `https://www.google.com/search?q=${encodeURIComponent(name + ' Vigo instagram')}`;
+const escapeHTML = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
+const escapeAttr = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 async function loadData(){
-  const { data: places, error: pErr } = await sb.from('places').select('*').order('category').order('sort_order');
-  const { data: reviews, error: rErr } = await sb.from('reviews').select('*').order('created_at', {ascending:false});
-  if(pErr || rErr){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + (pErr?.message || rErr?.message); return; }
+  const { data: places, error } = await sb.from('places').select('*').order('category').order('sort_order');
+  if(error){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + error.message; return; }
   placesData = places;
-  reviewsByPlace = {};
-  (reviews||[]).forEach(r => { (reviewsByPlace[r.place_id] = reviewsByPlace[r.place_id] || []).push(r); });
   render();
 }
-
-function starsHTML(avg){
-  const full = Math.round(avg);
-  return '★'.repeat(full) + '☆'.repeat(5-full);
-}
-
-function reviewsBlock(place){
-  const revs = reviewsByPlace[place.id] || [];
-  const avg = revs.length ? (revs.reduce((s,r)=>s+r.rating,0)/revs.length) : null;
-  const adminRev = revs.find(r=>r.is_admin);
-  let html = `<div class="reviews-summary">`;
-  if(avg){ html += `<span class="stars">${starsHTML(avg)}</span><span>${avg.toFixed(1)} · ${revs.length} valoración${revs.length!==1?'s':''}</span>`; }
-  else { html += `<span>Sen valoracións aínda</span>`; }
-  html += `</div>`;
-  if(revs.length){
-    html += `<div class="review-list">` + revs.map(r => `
-      <div class="review-item" data-review-id="${r.id}">
-        ${isAdmin ? `<span class="rdel" onclick="deleteReview('${r.id}','${place.id}')">borrar</span>` : ''}
-        <span class="rname">${escapeHTML(r.author_name)}</span>${r.is_admin ? '<span class="rbadge">Ricardo</span>' : ''}
-        <span class="stars">${starsHTML(r.rating)}</span>
-        ${r.comment ? `<div>${escapeHTML(r.comment)}</div>` : ''}
-      </div>`).join('') + `</div>`;
-  }
-  return html;
-}
-
-function escapeHTML(s){ const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
 
 function cardHTML(place){
   const ig = place.instagram_url
     ? `<a href="${place.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
     : `<a class="search" href="${igSearch(place.name)}" target="_blank" rel="noopener">🔍 Buscar en Instagram</a>`;
   const maps = place.maps_url ? `<a href="${place.maps_url}" target="_blank" rel="noopener">📍 Maps</a>` : '';
+  const scoreBadge = (place.score !== null && place.score !== undefined) ? `<div class="score">${Number(place.score)}/10</div>` : '';
   return `
   <div class="card" data-status="${place.status}" data-id="${place.id}">
     <div class="card-top">
       <div class="name">${escapeHTML(place.name)}${place.location ? `<span class="loc">${escapeHTML(place.location)}</span>` : ''}</div>
-      <div class="status">${STATUS_LABEL[place.status]}</div>
+      <div class="badges"><div class="status">${STATUS_LABEL[place.status]}</div>${scoreBadge}</div>
     </div>
-    <div class="note" id="note-${place.id}">${escapeHTML(place.note||'')}</div>
+    <div class="note">${escapeHTML(place.note||'')}</div>
     <div class="links">${maps}${ig}</div>
-    ${reviewsBlock(place)}
-    <button class="toggle-review" onclick="toggleReviewForm('${place.id}')">+ deixar valoración</button>
-    <div class="review-form" id="form-${place.id}">
-      <input type="text" id="rname-${place.id}" placeholder="O teu nome">
-      <div class="star-picker" id="stars-${place.id}">${[1,2,3,4,5].map(n=>`<span data-n="${n}" onclick="setStars('${place.id}',${n})">★</span>`).join('')}</div>
-      <textarea id="rcomment-${place.id}" placeholder="Comentario (opcional)"></textarea>
-      ${isAdmin ? `<div class="admin-check"><input type="checkbox" id="radmin-${place.id}"> publicar como nota de Ricardo</div>` : ''}
-      <button class="submit-btn" onclick="submitReview('${place.id}')">Enviar</button>
-    </div>
     <button class="admin-toggle-edit ${isAdmin?'show':''}" onclick="toggleEdit('${place.id}')">✎ editar ficha</button>
+    <button class="admin-del ${isAdmin?'show':''}" onclick="deletePlace('${place.id}','${escapeAttr(place.name)}')">🗑 eliminar</button>
     <div class="admin-edit" id="edit-${place.id}">
+      <label>Nome</label>
+      <input type="text" id="editname-${place.id}" value="${escapeAttr(place.name)}">
+      <label>Localización</label>
+      <input type="text" id="editloc-${place.id}" value="${escapeAttr(place.location||'')}">
+      <div class="row2">
+        <div>
+          <label>Sección</label>
+          <select id="editcategory-${place.id}">
+            ${SECTIONS.map(s=>`<option value="${s.key}" ${s.key===place.category?'selected':''}>${s.title}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Estado</label>
+          <select id="editstatus-${place.id}">
+            ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}" ${s===place.status?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <label>Nota (0–10, deixa baleiro se non hai)</label>
+      <input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
+      <label>Ligazón Google Maps</label>
+      <input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
+      <label>Ligazón Instagram (baleiro = busca automática)</label>
+      <input type="text" id="editig-${place.id}" value="${escapeAttr(place.instagram_url||'')}">
+      <label>Nota / descrición</label>
       <textarea id="editnote-${place.id}" rows="3">${escapeHTML(place.note||'')}</textarea>
-      <select id="editstatus-${place.id}">
-        ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}" ${s===place.status?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
-      </select>
       <button class="save-btn" onclick="saveEdit('${place.id}')">Gardar</button>
     </div>
   </div>`;
+}
+
+function addPlaceFormHTML(sectionKey){
+  const uid = 'new-' + sectionKey;
+  return `
+  <details class="add-place">
+    <summary>+ engadir ficha nova</summary>
+    <div class="fields">
+      <input type="text" id="${uid}-name" placeholder="Nome">
+      <input type="text" id="${uid}-loc" placeholder="Localización (opcional)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <select id="${uid}-status">
+          ${Object.keys(STATUS_LABEL).map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join('')}
+        </select>
+        <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
+      </div>
+      <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
+      <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
+      <textarea id="${uid}-note" rows="2" placeholder="Nota / descrición"></textarea>
+      <button class="save-btn" onclick="addPlace('${sectionKey}')">Engadir</button>
+    </div>
+  </details>`;
 }
 
 function render(){
@@ -253,7 +250,7 @@ function render(){
   main.innerHTML = '';
   SECTIONS.forEach((sec, i) => {
     const items = placesData.filter(p => p.category === sec.key);
-    if(!items.length) return;
+    if(!items.length && !isAdmin) return;
     if(i>0){
       main.innerHTML += `<div class="divider"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/></svg><div class="rule"></div></div>`;
     }
@@ -262,47 +259,63 @@ function render(){
         <div class="section-head"><span class="tag">${sec.tag}</span></div>
         <h2>${sec.title}</h2>
         ${sec.desc ? `<p class="desc">${sec.desc}</p>` : ''}
-        <div class="cards">${items.map(cardHTML).join('')}</div>
+        <div class="cards">${items.map(cardHTML).join('')}${isAdmin ? addPlaceFormHTML(sec.key) : ''}</div>
       </section>`;
   });
   applyFilter();
 }
 
-function toggleReviewForm(id){
-  document.getElementById('form-'+id).classList.toggle('open');
-}
 function toggleEdit(id){
   document.getElementById('edit-'+id).classList.toggle('on');
 }
-function setStars(id, n){
-  const picker = document.getElementById('stars-'+id);
-  picker.dataset.value = n;
-  [...picker.children].forEach(s => s.classList.toggle('on', +s.dataset.n <= n));
-}
-
-async function submitReview(placeId){
-  const name = document.getElementById('rname-'+placeId).value.trim();
-  const comment = document.getElementById('rcomment-'+placeId).value.trim();
-  const stars = +(document.getElementById('stars-'+placeId).dataset.value || 0);
-  const asAdmin = isAdmin && document.getElementById('radmin-'+placeId) && document.getElementById('radmin-'+placeId).checked;
-  if(!name || !stars){ alert('Pon o teu nome e escolle unha puntuación (estrelas).'); return; }
-  const { error } = await sb.from('reviews').insert({ place_id: placeId, author_name: name, rating: stars, comment: comment || null, is_admin: !!asAdmin });
-  if(error){ alert('Erro: ' + error.message); return; }
-  await loadData();
-}
-
-async function deleteReview(reviewId, placeId){
-  if(!confirm('Borrar esta valoración?')) return;
-  const { error } = await sb.from('reviews').delete().eq('id', reviewId);
-  if(error){ alert('Erro: ' + error.message); return; }
-  await loadData();
-}
 
 async function saveEdit(placeId){
-  const note = document.getElementById('editnote-'+placeId).value;
-  const status = document.getElementById('editstatus-'+placeId).value;
-  const { error } = await sb.from('places').update({ note, status }).eq('id', placeId);
+  const scoreVal = document.getElementById('editscore-'+placeId).value;
+  const igVal = document.getElementById('editig-'+placeId).value.trim();
+  const payload = {
+    name: document.getElementById('editname-'+placeId).value.trim(),
+    location: document.getElementById('editloc-'+placeId).value.trim() || null,
+    category: document.getElementById('editcategory-'+placeId).value,
+    status: document.getElementById('editstatus-'+placeId).value,
+    score: scoreVal === '' ? null : Number(scoreVal),
+    maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
+    instagram_url: igVal || null,
+    instagram_verified: !!igVal,
+    note: document.getElementById('editnote-'+placeId).value
+  };
+  const { error } = await sb.from('places').update(payload).eq('id', placeId);
   if(error){ alert('Erro ao gardar: ' + error.message); return; }
+  await loadData();
+}
+
+async function deletePlace(placeId, name){
+  if(!confirm(`Eliminar "${name}" da lista?`)) return;
+  const { error } = await sb.from('places').delete().eq('id', placeId);
+  if(error){ alert('Erro ao eliminar: ' + error.message); return; }
+  await loadData();
+}
+
+async function addPlace(sectionKey){
+  const uid = 'new-' + sectionKey;
+  const name = document.getElementById(`${uid}-name`).value.trim();
+  if(!name){ alert('Pon polo menos o nome.'); return; }
+  const scoreVal = document.getElementById(`${uid}-score`).value;
+  const igVal = document.getElementById(`${uid}-ig`).value.trim();
+  const maxSort = Math.max(0, ...placesData.filter(p=>p.category===sectionKey).map(p=>p.sort_order||0));
+  const payload = {
+    name,
+    location: document.getElementById(`${uid}-loc`).value.trim() || null,
+    category: sectionKey,
+    status: document.getElementById(`${uid}-status`).value,
+    score: scoreVal === '' ? null : Number(scoreVal),
+    maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
+    instagram_url: igVal || null,
+    instagram_verified: !!igVal,
+    note: document.getElementById(`${uid}-note`).value,
+    sort_order: maxSort + 1
+  };
+  const { error } = await sb.from('places').insert(payload);
+  if(error){ alert('Erro ao engadir: ' + error.message); return; }
   await loadData();
 }
 
@@ -322,7 +335,7 @@ function applyFilter(){
   });
 }
 
-/* ---- admin auth (email OTP code, no redirect needed) ---- */
+/* ---- admin auth (magic link) ---- */
 const adminBtn = document.getElementById('adminBtn');
 const loginBox = document.getElementById('loginBox');
 const adminPill = document.getElementById('adminPill');
@@ -338,17 +351,7 @@ document.getElementById('sendCodeBtn').addEventListener('click', async () => {
   document.getElementById('loginMsg').textContent = 'Enviando...';
   const { error } = await sb.auth.signInWithOtp({ email });
   if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
-  document.getElementById('loginStep1').style.display = 'none';
-  document.getElementById('loginStep2').style.display = 'none';
-  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e preme na ligazón que che chegou. Non fai falta código, ao premer volves aquí xa identificado.';
-});
-
-document.getElementById('verifyCodeBtn').addEventListener('click', async () => {
-  const email = document.getElementById('loginEmail').value.trim();
-  const token = document.getElementById('loginCode').value.trim();
-  const { error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
-  if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
-  loginBox.classList.remove('open');
+  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e preme na ligazón. Non fai falta código.';
 });
 
 async function checkAdminFromUser(){
