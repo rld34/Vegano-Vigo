@@ -39,6 +39,18 @@
   .hero h1 em{font-style:normal;font-weight:400;color:var(--ink-soft);}
   .hero p.lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:46ch;margin:0 0 20px;font-weight:400;}
   .hero .note{font-family:'Instrument Sans',sans-serif;font-size:12.5px;letter-spacing:.01em;line-height:1.6;color:var(--ink-soft);border-left:1px solid var(--ink);padding-left:14px;max-width:56ch;}
+
+  .city-switch{position:relative;display:inline-flex;align-items:baseline;gap:.02em;cursor:pointer;color:var(--ink);background-image:linear-gradient(var(--ink),var(--ink));background-repeat:no-repeat;background-position:0 92%;background-size:0% 2px;transition:background-size .35s cubic-bezier(.4,0,.2,1),color .3s ease;}
+  .city-switch:hover, .city-switch.open{background-size:100% 2px;color:var(--ink);}
+  .city-switch:focus-visible{outline:2px solid var(--ink);outline-offset:6px;}
+  .city-chevron{width:.22em;height:.22em;vertical-align:middle;margin-left:.06em;position:relative;top:-0.06em;transition:transform .3s ease;stroke-width:2.4;}
+  .city-switch.open .city-chevron{transform:rotate(180deg);}
+  .city-menu{position:absolute;left:0;top:104%;min-width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;box-shadow:0 16px 40px var(--shadow);opacity:0;visibility:hidden;transform:translateY(-10px);transition:opacity .28s ease,transform .28s cubic-bezier(.4,0,.2,1),visibility .28s;z-index:5;}
+  .city-switch:hover .city-menu, .city-switch.open .city-menu{opacity:1;visibility:visible;transform:translateY(0);}
+  .city-menu-item{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(22px,3.2vw,34px);font-weight:600;letter-spacing:-0.02em;color:var(--ink-soft);padding:6px 14px;border-radius:5px;white-space:nowrap;transition:color .18s ease,background .18s ease;cursor:pointer;}
+  .city-menu-item:hover, .city-menu-item:focus-visible{color:var(--ink);background:var(--paper);}
+  .city-menu-item.current{color:var(--ink);}
+  .city-menu-empty{font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--ink-soft);padding:8px 14px;white-space:nowrap;}
   .scroll-cue{position:absolute;right:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
   .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
   @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
@@ -147,7 +159,7 @@
 <div class="hero">
   <div class="hero-inner">
     <div class="eyebrow">Guía persoal de Nerea e Ricardo</div>
-    <h1><em>Vegano</em> en <span id="cityName">Vigo</span></h1>
+    <h1><em>Vegano</em> en <span class="city-switch" id="cityTrigger" tabindex="0" role="button" aria-haspopup="listbox" aria-expanded="false"><span id="cityName">Vigo</span><svg class="city-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg><div class="city-menu" id="cityMenu" role="listbox"></div></span></h1>
     <p class="lede">Catálogo persoal de sitios vexetais para comer en <span id="cityName2">Vigo</span>, con nota sobre 10 posta por Nerea e Ricardo.</p>
     <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
   </div>
@@ -223,6 +235,7 @@ async function loadCities(){
   if(!citiesData.find(c => c.id === currentCity)) currentCity = citiesData[0].id;
   const sel = document.getElementById('citySelect');
   sel.innerHTML = citiesData.map(c => `<option value="${c.id}" ${c.id===currentCity?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  renderCityMenu();
   updateCityCopy();
 }
 
@@ -234,12 +247,50 @@ function updateCityCopy(){
   document.title = `${name} vegano — sitios vexetais para comer`;
 }
 
-document.getElementById('citySelect').addEventListener('change', async (e) => {
-  currentCity = e.target.value;
+function renderCityMenu(){
+  const menu = document.getElementById('cityMenu');
+  const others = citiesData.filter(c => c.id !== currentCity);
+  menu.innerHTML = others.length
+    ? others.map(c => `<div class="city-menu-item" role="option" tabindex="0" data-city="${c.id}">${escapeHTML(c.name)}</div>`).join('')
+    : `<div class="city-menu-empty">Só ${escapeHTML((citiesData.find(c=>c.id===currentCity)||{}).name || '')} por agora</div>`;
+}
+
+async function setCity(cityId){
+  if(cityId === currentCity) return;
+  currentCity = cityId;
   localStorage.setItem('vv-city', currentCity);
+  document.getElementById('citySelect').value = currentCity;
+  renderCityMenu();
   updateCityCopy();
   await loadData();
+}
+
+document.getElementById('citySelect').addEventListener('change', (e) => setCity(e.target.value));
+
+const cityTrigger = document.getElementById('cityTrigger');
+const cityMenu = document.getElementById('cityMenu');
+
+cityMenu.addEventListener('click', (e) => {
+  const item = e.target.closest('.city-menu-item');
+  if(!item) return;
+  setCity(item.dataset.city);
+  cityTrigger.classList.remove('open');
+  cityTrigger.setAttribute('aria-expanded', 'false');
 });
+
+cityTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = cityTrigger.classList.toggle('open');
+  cityTrigger.setAttribute('aria-expanded', String(open));
+});
+cityTrigger.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cityTrigger.click(); }
+  if(e.key === 'Escape'){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
+});
+document.addEventListener('click', (e) => {
+  if(!cityTrigger.contains(e.target)){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
+});
+
 
 async function loadData(){
   const { data: places, error } = await sb.from('places').select('*').eq('city', currentCity).order('place_type').order('sort_order');
