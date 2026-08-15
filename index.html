@@ -6,7 +6,7 @@
 <title>Vigo vegano — sitios vexetais para comer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -34,8 +34,8 @@
   /* ---- hero: minimal, protagonist ---- */
   .hero{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px 22px 72px;position:relative;overflow:hidden;}
   .hero-inner{max-width:1560px;margin:0 auto;width:100%;position:relative;}
-  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(30px,9vw,148px);line-height:.92;margin:0;letter-spacing:-0.035em;white-space:nowrap;}
-  .hero h1 em{font-style:normal;font-weight:400;color:var(--ink-soft);}
+  .hero h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(30px,9vw,148px);line-height:.92;margin:0;letter-spacing:-0.035em;white-space:nowrap;}
+  .hero h1 em{font-style:italic;font-weight:400;color:var(--ink-soft);}
   .scroll-cue{position:absolute;left:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
   .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
   @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
@@ -52,7 +52,7 @@
   .city-switch.open .city-chevron{transform:rotate(180deg);}
   .city-menu{position:absolute;left:0;right:0;bottom:100%;margin-bottom:10px;display:flex;flex-direction:column;align-items:flex-start;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .32s ease,transform .32s cubic-bezier(.4,0,.2,1),visibility .32s;z-index:5;pointer-events:none;}
   .city-switch:hover .city-menu, .city-switch.open .city-menu{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
-  .city-menu-item{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(30px,9vw,148px);font-weight:600;letter-spacing:-0.035em;line-height:1.05;white-space:nowrap;color:rgba(24,23,15,0.16);transition:color .2s ease;cursor:pointer;}
+  .city-menu-item{font-family:'Instrument Serif',serif;font-size:clamp(30px,9vw,148px);font-weight:400;letter-spacing:-0.035em;line-height:1.05;white-space:nowrap;color:rgba(24,23,15,0.16);transition:color .2s ease;cursor:pointer;}
   .city-menu-item:hover, .city-menu-item:focus-visible{color:var(--ink);}
   .city-menu-empty{font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink-soft);white-space:nowrap;}
 
@@ -71,33 +71,48 @@
   .city-sheet-handle{width:36px;height:4px;background:var(--line);border-radius:100px;margin:0 auto 16px;}
   .city-sheet-title{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;}
   .city-sheet-list{display:flex;flex-direction:column;}
-  .city-sheet-item{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:28px;letter-spacing:-0.01em;padding:14px 2px;border-bottom:1px solid var(--line);color:var(--ink);}
+  .city-sheet-item{font-family:'Instrument Serif',serif;font-weight:400;font-size:28px;letter-spacing:-0.01em;padding:14px 2px;border-bottom:1px solid var(--line);color:var(--ink);}
   .city-sheet-item:last-child{border-bottom:none;}
   .city-sheet-item.current{color:var(--ink-soft);}
 
-  /* ---- hamburger side panel ---- */
-  .menu-overlay{position:fixed;inset:0;background:rgba(24,23,15,0.25);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s;z-index:9000;}
-  .menu-overlay.open{opacity:1;visibility:visible;}
-  .menu-panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);background:var(--paper);border-left:1px solid var(--line);z-index:9001;padding:96px 28px 28px;overflow-y:auto;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;gap:28px;}
-  .menu-panel.open{transform:translateX(0);}
-  .menu-section-label{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;}
-  .view-toggle{display:flex;border:1px solid var(--ink);border-radius:100px;overflow:hidden;}
+  /* ---- hamburger full-screen menu ---- */
+  .menu-panel{position:fixed;inset:0;background:var(--paper);z-index:9001;padding:0;overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .4s ease,visibility .4s;}
+  .menu-panel.open{opacity:1;visibility:visible;}
+  .menu-topline{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid var(--line);}
+  .menu-wordmark{font-family:'Instrument Serif',serif;font-weight:400;font-size:16px;}
+  .menu-wordmark span{color:var(--ink-soft);font-weight:400;margin:0 2px;}
+  .menu-close{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.02em;color:var(--ink-soft);background:none;border:none;padding:6px 0;}
+  .menu-close:hover{color:var(--ink);}
+  .menu-meta{padding:28px 22px 8px;max-width:640px;margin:0 auto;}
+  .menu-meta-row{display:flex;justify-content:space-between;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.02em;color:var(--ink-soft);padding-bottom:18px;}
+  .menu-content{max-width:640px;margin:0 auto;padding:0 22px 60px;}
+  .menu-row{border-bottom:1px solid var(--line);padding:22px 0;}
+  .menu-row-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;}
+  .menu-num{font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);}
+  .menu-row-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:22px;letter-spacing:-0.01em;}
+  .menu-row-title em{font-style:italic;font-weight:400;color:var(--ink-soft);}
+  .view-toggle{display:flex;border:1px solid var(--ink);border-radius:100px;overflow:hidden;max-width:280px;}
   .view-toggle button{flex:1;padding:10px 0;font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;background:transparent;border:none;color:var(--ink);}
   .view-toggle button.active{background:var(--ink);color:var(--paper);}
-  .menu-search{width:100%;font-family:'Instrument Sans',sans-serif;font-size:15px;padding:11px 14px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
+  .menu-search{width:100%;font-family:'Instrument Sans',sans-serif;font-size:16px;padding:12px 16px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);max-width:440px;}
   .menu-search:focus{outline:2px solid var(--ink);outline-offset:1px;}
   .menu-chip-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .menu-chip{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.01em;padding:7px 14px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);}
+  .menu-chip{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.01em;padding:8px 15px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);}
   .menu-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .menu-sort-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;padding:10px 14px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);width:100%;text-align:left;}
+  .menu-sort-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;padding:11px 16px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);max-width:280px;text-align:left;}
   .menu-sort-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .menu-footer-note{font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin-top:auto;padding-top:20px;border-top:1px solid var(--line);}
+  .menu-footer-note{font-size:11.5px;color:var(--ink-soft);line-height:1.6;padding-top:24px;}
+  @media (max-width:640px){
+    .menu-meta{padding:22px 20px 4px;}
+    .menu-content{padding:0 20px 48px;}
+    .menu-row-title{font-size:19px;}
+  }
 
   main{max-width:1560px;margin:0 auto;padding:8px 22px 80px;}
   .section{margin-top:64px;}
   .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;}
   .section-head .tag{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
-  .section h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:32px;margin:0;letter-spacing:-0.01em;}
+  .section h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:32px;margin:0;letter-spacing:-0.01em;}
   .section .desc{font-size:14px;color:var(--ink-soft);margin:8px 0 26px;max-width:56ch;line-height:1.55;}
   .empty-msg{font-family:'Instrument Sans',sans-serif;font-size:12px;color:var(--ink-soft);padding:8px 0;}
 
@@ -107,11 +122,11 @@
   .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--status-color,var(--line));}
   .card .photo{width:100%;height:210px;object-fit:cover;border-radius:3px;margin-bottom:14px;display:block;background:var(--line);}
   .card-top{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;}
-  .card .name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:19px;line-height:1.25;letter-spacing:-0.01em;}
+  .card .name{font-family:'Instrument Serif',serif;font-weight:400;font-size:19px;line-height:1.25;letter-spacing:-0.01em;}
   .card .name .loc{display:block;font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);margin-top:3px;font-style:normal;font-weight:400;}
   .card .badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
   .card .status{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:10px;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
-  .card .score{font-family:'Bricolage Grotesque',sans-serif;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:3px;white-space:nowrap;background:var(--ink);color:var(--paper);}
+  .card .score{font-family:'Instrument Sans',sans-serif;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:3px;white-space:nowrap;background:var(--ink);color:var(--paper);}
   .card .cuisine{display:inline-block;margin-top:8px;font-family:'Instrument Sans',sans-serif;font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);}
   .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-top:10px;}
   .card .links{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
@@ -131,7 +146,7 @@
   #placesMap{width:100%;height:calc(100vh - 40px);min-height:480px;border-radius:8px;border:1px solid var(--line);background:var(--card);}
   .leaflet-popup-content-wrapper{border-radius:8px;font-family:'Instrument Sans',sans-serif;}
   .map-popup{min-width:180px;}
-  .map-popup .mp-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:15px;margin-bottom:2px;}
+  .map-popup .mp-name{font-family:'Instrument Serif',serif;font-weight:400;font-size:15px;margin-bottom:2px;}
   .map-popup .mp-meta{font-size:11px;color:var(--ink-soft);margin-bottom:6px;}
   .map-popup a{font-size:12px;font-weight:500;color:var(--ink);text-decoration:underline;}
   #listView.hidden, #mapView:not(.active){display:none;}
@@ -156,7 +171,6 @@
     .section h2{font-size:26px;}
     .card{padding:14px 15px 16px;}
     .card .photo{height:180px;}
-    .menu-panel{width:100vw;padding:88px 20px 24px;}
     #placesMap{height:calc(100vh - 160px);}
   }
 </style>
@@ -167,42 +181,49 @@
   <button class="menu-btn" id="menuBtn" aria-label="Menú" aria-expanded="false"><span></span><span></span><span></span></button>
 </div>
 
-<div class="menu-overlay" id="menuOverlay"></div>
 <div class="menu-panel" id="menuPanel">
-  <div>
-    <div class="menu-section-label">Vista</div>
-    <div class="view-toggle" id="viewToggle">
-      <button data-view="list" class="active">Lista</button>
-      <button data-view="map">Mapa</button>
+  <div class="menu-topline">
+    <div class="menu-wordmark">Vegano<span>·</span>Vigo</div>
+  </div>
+  <div class="menu-meta">
+    <div class="menu-meta-row"><span id="menuMetaCity">Vigo</span><span id="menuMetaCount">— sitios</span></div>
+  </div>
+  <div class="menu-content">
+    <div class="menu-row">
+      <div class="menu-row-head"><span class="menu-num">01</span><span class="menu-row-title">Vista</span></div>
+      <div class="view-toggle" id="viewToggle">
+        <button data-view="list" class="active">Lista</button>
+        <button data-view="map">Mapa</button>
+      </div>
     </div>
-  </div>
-  <div>
-    <div class="menu-section-label">Buscar</div>
-    <input type="text" class="menu-search" id="searchInput" placeholder="Nome, zona ou tipo de comida...">
-  </div>
-  <div>
-    <div class="menu-section-label">Vegano?</div>
-    <div class="menu-chip-row" id="veganLegend">
-      <button class="menu-chip active" data-vfilter="all">Todo</button>
-      <button class="menu-chip" data-vfilter="vegano_100">100% vegano</button>
-      <button class="menu-chip" data-vfilter="vexetariano">Vexetariano</button>
-      <button class="menu-chip" data-vfilter="opciones">Opcións veganas</button>
-      <button class="menu-chip" data-vfilter="sen_confirmar">Sen confirmar</button>
+    <div class="menu-row">
+      <div class="menu-row-head"><span class="menu-num">02</span><span class="menu-row-title">Buscar</span></div>
+      <input type="text" class="menu-search" id="searchInput" placeholder="Nome, zona ou tipo de comida...">
     </div>
-  </div>
-  <div>
-    <div class="menu-section-label">Probado</div>
-    <div class="menu-chip-row" id="triedLegend">
-      <button class="menu-chip active" data-tfilter="all">Todo</button>
-      <button class="menu-chip" data-tfilter="tried">✓ Probado</button>
-      <button class="menu-chip" data-tfilter="untried">○ Por probar</button>
+    <div class="menu-row">
+      <div class="menu-row-head"><span class="menu-num">03</span><span class="menu-row-title">É <em>vegano?</em></span></div>
+      <div class="menu-chip-row" id="veganLegend">
+        <button class="menu-chip active" data-vfilter="all">Todo</button>
+        <button class="menu-chip" data-vfilter="vegano_100">100% vegano</button>
+        <button class="menu-chip" data-vfilter="vexetariano">Vexetariano</button>
+        <button class="menu-chip" data-vfilter="opciones">Opcións veganas</button>
+        <button class="menu-chip" data-vfilter="sen_confirmar">Sen confirmar</button>
+      </div>
     </div>
+    <div class="menu-row">
+      <div class="menu-row-head"><span class="menu-num">04</span><span class="menu-row-title">Probado</span></div>
+      <div class="menu-chip-row" id="triedLegend">
+        <button class="menu-chip active" data-tfilter="all">Todo</button>
+        <button class="menu-chip" data-tfilter="tried">✓ Probado</button>
+        <button class="menu-chip" data-tfilter="untried">○ Por probar</button>
+      </div>
+    </div>
+    <div class="menu-row">
+      <div class="menu-row-head"><span class="menu-num">05</span><span class="menu-row-title">Orde</span></div>
+      <button class="menu-sort-btn" id="sortBtn">Ordenar por nota ↓</button>
+    </div>
+    <div class="menu-footer-note">Guía persoal de Nerea e Ricardo. As notas non son públicas, non hai comentarios abertos.</div>
   </div>
-  <div>
-    <div class="menu-section-label">Orde</div>
-    <button class="menu-sort-btn" id="sortBtn">Ordenar por nota ↓</button>
-  </div>
-  <div class="menu-footer-note">Guía persoal de Nerea e Ricardo. As notas non son públicas, non hai comentarios abertos.</div>
 </div>
 
 <div class="hero">
@@ -275,6 +296,9 @@ async function loadData(){
   const { data: places, error } = await sb.from('places').select('*').eq('city', currentCity).order('place_type').order('sort_order');
   if(error){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + error.message; return; }
   placesData = places;
+  const city = citiesData.find(c => c.id === currentCity);
+  document.getElementById('menuMetaCity').textContent = city ? city.name : '';
+  document.getElementById('menuMetaCount').textContent = `${placesData.length} sitio${placesData.length!==1?'s':''}`;
   render();
 }
 
@@ -419,16 +443,13 @@ document.getElementById('viewToggle').addEventListener('click', e => {
 /* ---- hamburger menu ---- */
 const menuBtn = document.getElementById('menuBtn');
 const menuPanel = document.getElementById('menuPanel');
-const menuOverlay = document.getElementById('menuOverlay');
 function toggleMenu(open){
   const isOpen = open ?? !menuPanel.classList.contains('open');
   menuPanel.classList.toggle('open', isOpen);
-  menuOverlay.classList.toggle('open', isOpen);
   menuBtn.classList.toggle('open', isOpen);
   menuBtn.setAttribute('aria-expanded', String(isOpen));
 }
 menuBtn.addEventListener('click', () => toggleMenu());
-menuOverlay.addEventListener('click', () => toggleMenu(false));
 
 document.getElementById('veganLegend').addEventListener('click', e => {
   const chip = e.target.closest('.menu-chip'); if(!chip) return;
