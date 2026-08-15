@@ -134,6 +134,37 @@
 
   @media (min-width:640px){.cards{grid-template-columns:1fr 1fr;}}
   @media (min-width:980px){.cards{grid-template-columns:1fr 1fr 1fr;}}
+
+  /* ---- mobile refinements ---- */
+  @media (max-width:640px){
+    .topbar{padding:14px 16px;gap:8px;}
+    .wordmark{font-size:14px;}
+    .topbar-right{gap:6px;}
+    .city-select{padding:5px 10px;font-size:11px;max-width:92px;}
+    .admin-pill{display:none;}
+    .admin-btn{padding:6px 11px;font-size:10.5px;}
+
+    .hero{padding:96px 16px 40px;}
+    .hero .eyebrow{font-size:10.5px;letter-spacing:.12em;margin-bottom:14px;}
+    .hero h1{margin-bottom:18px;}
+    .hero p.lede{font-size:16px;max-width:100%;}
+    .hero .note{font-size:11.5px;}
+
+    .filter-wrap{top:56px;padding:12px 16px 10px;}
+    .search-row{flex-wrap:wrap;}
+    .search-row input{min-width:0;flex-basis:100%;padding:11px 14px;}
+    .sort-btn{flex:1;text-align:center;padding:10px 12px;}
+    .chip{padding:8px 14px;font-size:12px;}
+
+    main{padding:8px 16px 64px;}
+    .section{margin-top:48px;}
+    .section h2{font-size:26px;}
+    .card{padding:14px 15px 16px;}
+    .card .photo{height:180px;}
+
+    .admin-edit .row2{grid-template-columns:1fr;}
+    .login-box{left:16px;right:16px;width:auto;}
+  }
 </style>
 </head>
 <body>
