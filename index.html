@@ -243,6 +243,10 @@ function cardHTML(place){
       <input type="text" id="editcuisine-${place.id}" value="${escapeAttr(place.cuisine_tag||'')}">
       <label>Nota (0–10, deixa baleiro se aínda non probastes)</label>
       <input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
+      <label>Foto</label>
+      ${place.photo_url ? `<img src="${place.photo_url}" style="width:100%;height:100px;object-fit:cover;border-radius:3px;">` : ''}
+      <input type="file" id="editphoto-${place.id}" accept="image/*">
+      ${place.photo_url ? `<label style="margin-top:0;"><input type="checkbox" id="editphotorm-${place.id}" style="width:auto;"> quitar foto actual</label>` : ''}
       <label>Ligazón Google Maps</label>
       <input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
       <label>Web propia ou carta (opcional)</label>
@@ -271,6 +275,8 @@ function addPlaceFormHTML(sectionKey){
         <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
       </div>
       <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida (ex. pizza, ramen...)">
+      <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);">Foto (opcional)</label>
+      <input type="file" id="${uid}-photo" accept="image/*">
       <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
       <input type="text" id="${uid}-web" placeholder="Web propia ou carta (opcional)">
       <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
@@ -322,9 +328,23 @@ function toggleEdit(id){
   document.getElementById('edit-'+id).classList.toggle('on');
 }
 
+async function uploadPhotoIfAny(placeId, fileInputId){
+  const fileInput = document.getElementById(fileInputId);
+  const file = fileInput && fileInput.files[0];
+  if(!file) return undefined; // no change
+  const ext = file.name.split('.').pop();
+  const path = `${placeId}-${Date.now()}.${ext}`;
+  const { error } = await sb.storage.from('place-photos').upload(path, file, { upsert: true });
+  if(error){ alert('Erro subindo a foto: ' + error.message); return undefined; }
+  const { data } = sb.storage.from('place-photos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function saveEdit(placeId){
   const scoreVal = document.getElementById('editscore-'+placeId).value;
   const igVal = document.getElementById('editig-'+placeId).value.trim();
+  const removePhoto = document.getElementById('editphotorm-'+placeId) && document.getElementById('editphotorm-'+placeId).checked;
+  const uploadedUrl = await uploadPhotoIfAny(placeId, 'editphoto-'+placeId);
   const payload = {
     name: document.getElementById('editname-'+placeId).value.trim(),
     location: document.getElementById('editloc-'+placeId).value.trim() || null,
@@ -338,6 +358,8 @@ async function saveEdit(placeId){
     instagram_verified: !!igVal,
     note: document.getElementById('editnote-'+placeId).value
   };
+  if(uploadedUrl) payload.photo_url = uploadedUrl;
+  else if(removePhoto) payload.photo_url = null;
   const { error } = await sb.from('places').update(payload).eq('id', placeId);
   if(error){ alert('Erro ao gardar: ' + error.message); return; }
   await loadData();
@@ -357,6 +379,15 @@ async function addPlace(sectionKey){
   const scoreVal = document.getElementById(`${uid}-score`).value;
   const igVal = document.getElementById(`${uid}-ig`).value.trim();
   const maxSort = Math.max(0, ...placesData.filter(p=>p.place_type===sectionKey).map(p=>p.sort_order||0));
+  let photoUrl = null;
+  const photoFile = document.getElementById(`${uid}-photo`).files[0];
+  if(photoFile){
+    const ext = photoFile.name.split('.').pop();
+    const path = `new-${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('place-photos').upload(path, photoFile, { upsert: true });
+    if(upErr){ alert('Erro subindo a foto: ' + upErr.message); return; }
+    photoUrl = sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+  }
   const payload = {
     name,
     location: document.getElementById(`${uid}-loc`).value.trim() || null,
@@ -368,6 +399,7 @@ async function addPlace(sectionKey){
     website_url: document.getElementById(`${uid}-web`).value.trim() || null,
     instagram_url: igVal || null,
     instagram_verified: !!igVal,
+    photo_url: photoUrl,
     note: document.getElementById(`${uid}-note`).value,
     sort_order: maxSort + 1,
     category: 'comida',
