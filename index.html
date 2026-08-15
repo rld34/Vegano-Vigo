@@ -59,6 +59,7 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:14px 16px 14px 20px;position:relative;transition:.15s;}
   .card:hover{box-shadow:0 4px 14px var(--shadow);}
   .card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-color,var(--line));}
+  .card .photo{width:100%;height:140px;object-fit:cover;border-radius:3px;margin-bottom:10px;display:block;background:var(--line);}
   .card-top{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;}
   .card .name{font-family:'Fraunces',serif;font-weight:500;font-size:17px;line-height:1.3;}
   .card .name .loc{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;font-style:normal;}
@@ -206,8 +207,10 @@ function cardHTML(place){
   const web = place.website_url ? `<a href="${place.website_url}" target="_blank" rel="noopener">🌐 Web</a>` : '';
   const scoreBadge = (place.score !== null && place.score !== undefined) ? `<div class="score">${Number(place.score)}/10</div>` : '';
   const cuisine = place.cuisine_tag ? `<span class="cuisine">${escapeHTML(place.cuisine_tag)}</span>` : '';
+  const photo = place.photo_url ? `<img class="photo" src="${place.photo_url}" alt="${escapeAttr(place.name)}" loading="lazy" onerror="this.remove()">` : '';
   return `
   <div class="card" data-vegan="${place.vegan_status}" data-tried="${place.score !== null ? 'tried' : 'untried'}" data-id="${place.id}">
+    ${photo}
     <div class="card-top">
       <div class="name">${escapeHTML(place.name)}${place.location ? `<span class="loc">${escapeHTML(place.location)}</span>` : ''}</div>
       <div class="badges"><div class="status">${VEGAN_LABEL[place.vegan_status]}</div>${scoreBadge}</div>
