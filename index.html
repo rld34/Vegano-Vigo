@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
@@ -20,28 +22,27 @@
   a{color:inherit;}
   button{font-family:inherit;cursor:pointer;}
 
-  .topbar{position:fixed;top:0;left:0;right:0;z-index:50;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:transparent;border-bottom:1px solid transparent;transition:background .3s ease,border-color .3s ease;}
-  .topbar.scrolled{background:var(--paper);border-bottom-color:var(--line);}
-  .wordmark{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:16px;letter-spacing:-0.01em;}
-  .wordmark span{color:var(--ink-soft);margin:0 2px;font-weight:400;}
-  .topbar-right{display:flex;align-items:center;gap:10px;}
-  .city-select{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.02em;padding:6px 12px;border-radius:100px;border:1px solid var(--ink);background:transparent;color:var(--ink);}
-  .admin-pill{font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
-  .admin-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.02em;padding:6px 14px;border-radius:100px;border:1px solid var(--ink);background:transparent;color:var(--ink);}
-  .admin-btn:hover{background:var(--ink);color:var(--paper);}
-  .admin-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  /* ---- floating controls over hero ---- */
+  .fab-row{position:fixed;top:20px;right:22px;z-index:60;display:flex;align-items:center;gap:10px;}
+  .fab-row.scrolled{}
+  .menu-btn{width:46px;height:46px;border-radius:50%;border:1px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+  .menu-btn span{display:block;width:18px;height:1.5px;background:var(--ink);transition:transform .3s ease,opacity .3s ease;}
+  .menu-btn.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+  .menu-btn.open span:nth-child(2){opacity:0;}
+  .menu-btn.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
 
-  .hero{min-height:100svh;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px 22px 56px;position:relative;}
+  /* ---- hero: minimal, protagonist ---- */
+  .hero{min-height:100svh;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px 22px 72px;position:relative;}
   .hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;}
-  .hero .eyebrow{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:22px;}
-  .hero .eyebrow .leaf{width:14px;height:14px;flex:none;}
-  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(30px,9vw,148px);line-height:.92;margin:0 0 28px;letter-spacing:-0.035em;white-space:nowrap;}
+  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(30px,9vw,148px);line-height:.92;margin:0;letter-spacing:-0.035em;white-space:nowrap;}
   .hero h1 em{font-style:normal;font-weight:400;color:var(--ink-soft);}
-  .hero p.lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:46ch;margin:0 0 20px;font-weight:400;}
-  .hero .note{font-family:'Instrument Sans',sans-serif;font-size:12.5px;letter-spacing:.01em;line-height:1.6;color:var(--ink-soft);border-left:1px solid var(--ink);padding-left:14px;max-width:56ch;}
+  .scroll-cue{position:absolute;left:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
+  .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
+  @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
+  @media (max-width:640px){.scroll-cue{display:none;}}
 
   .city-switch{position:relative;display:inline-flex;align-items:baseline;gap:.02em;cursor:pointer;color:var(--ink);background-image:linear-gradient(var(--ink),var(--ink));background-repeat:no-repeat;background-position:0 92%;background-size:0% 2px;transition:background-size .35s cubic-bezier(.4,0,.2,1),color .3s ease;}
-  .city-switch:hover, .city-switch.open{background-size:100% 2px;color:var(--ink);}
+  .city-switch:hover, .city-switch.open{background-size:100% 2px;}
   .city-switch:focus-visible{outline:2px solid var(--ink);outline-offset:6px;}
   .city-chevron{width:.22em;height:.22em;vertical-align:middle;margin-left:.06em;position:relative;top:-0.06em;transition:transform .3s ease;stroke-width:2.4;}
   .city-switch.open .city-chevron{transform:rotate(180deg);}
@@ -50,26 +51,26 @@
   .city-menu-item{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(30px,9vw,148px);font-weight:600;letter-spacing:-0.035em;line-height:1.05;white-space:nowrap;color:rgba(24,23,15,0.16);transition:color .2s ease;cursor:pointer;}
   .city-menu-item:hover, .city-menu-item:focus-visible{color:var(--ink);}
   .city-menu-empty{font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink-soft);white-space:nowrap;}
-  .scroll-cue{position:absolute;right:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
-  .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
-  @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
-  @media (max-width:640px){.scroll-cue{display:none;}}
 
-  .filter-wrap{position:sticky;top:64px;z-index:5;background:linear-gradient(var(--paper) 88%, transparent);padding:14px 22px 12px;}
-  .filter-inner{max-width:900px;margin:0 auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;gap:12px;}
-  .search-row{display:flex;gap:8px;}
-  .search-row input{flex:1;font-family:'Instrument Sans',sans-serif;font-size:14px;padding:9px 14px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
-  .search-row input:focus{outline:2px solid var(--ink);outline-offset:1px;}
-  .search-row input::placeholder{color:var(--ink-soft);}
-  .sort-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.02em;padding:9px 14px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);white-space:nowrap;}
-  .sort-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .chip{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.01em;padding:6px 13px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
-  .chip:hover{border-color:var(--ink);color:var(--ink);}
-  .chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .chip .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  /* ---- hamburger side panel ---- */
+  .menu-overlay{position:fixed;inset:0;background:rgba(24,23,15,0.25);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s;z-index:55;}
+  .menu-overlay.open{opacity:1;visibility:visible;}
+  .menu-panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);background:var(--paper);border-left:1px solid var(--line);z-index:59;padding:96px 28px 28px;overflow-y:auto;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;gap:28px;}
+  .menu-panel.open{transform:translateX(0);}
+  .menu-section-label{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;}
+  .view-toggle{display:flex;border:1px solid var(--ink);border-radius:100px;overflow:hidden;}
+  .view-toggle button{flex:1;padding:10px 0;font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;background:transparent;border:none;color:var(--ink);}
+  .view-toggle button.active{background:var(--ink);color:var(--paper);}
+  .menu-search{width:100%;font-family:'Instrument Sans',sans-serif;font-size:15px;padding:11px 14px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
+  .menu-search:focus{outline:2px solid var(--ink);outline-offset:1px;}
+  .menu-chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .menu-chip{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.01em;padding:7px 14px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);}
+  .menu-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .menu-sort-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;padding:10px 14px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);width:100%;text-align:left;}
+  .menu-sort-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .menu-footer-note{font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin-top:auto;padding-top:20px;border-top:1px solid var(--line);}
 
-  main{max-width:900px;margin:0 auto;padding:8px 22px 80px;}
+  main{max-width:1100px;margin:0 auto;padding:8px 22px 80px;}
   .section{margin-top:64px;}
   .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;}
   .section-head .tag{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
@@ -101,128 +102,102 @@
   .card[data-vegan="sen_confirmar"]{--status-color:var(--gray);}
   .card.hide{display:none;}
 
-  .admin-toggle-edit{display:none;font-family:'Instrument Sans',sans-serif;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:8px;margin-right:14px;}
-  .admin-toggle-edit.show{display:inline-block;}
-  .admin-del{display:none;font-family:'Instrument Sans',monospace;font-size:10.5px;color:var(--clay);background:none;border:none;padding:0;border-bottom:1px dotted var(--clay);margin-top:8px;}
-  .admin-del.show{display:inline-block;}
+  /* ---- map view ---- */
+  #mapView{display:none;}
+  #mapView.active{display:block;}
+  #placesMap{width:100%;height:calc(100vh - 40px);min-height:480px;border-radius:8px;border:1px solid var(--line);background:var(--card);}
+  .leaflet-popup-content-wrapper{border-radius:8px;font-family:'Instrument Sans',sans-serif;}
+  .map-popup{min-width:180px;}
+  .map-popup .mp-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:15px;margin-bottom:2px;}
+  .map-popup .mp-meta{font-size:11px;color:var(--ink-soft);margin-bottom:6px;}
+  .map-popup a{font-size:12px;font-weight:500;color:var(--ink);text-decoration:underline;}
+  #listView.hidden, #mapView:not(.active){display:none;}
 
-  .admin-edit{display:none;margin-top:10px;gap:7px;flex-direction:column;padding:10px;border:1px dashed var(--moss);border-radius:3px;background:rgba(255,255,255,0.35);}
-  .admin-edit.on{display:flex;}
-  .admin-edit label{font-family:'Instrument Sans',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:-4px;}
-  .admin-edit input, .admin-edit textarea, .admin-edit select{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);width:100%;}
-  .admin-edit .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .admin-edit .save-btn{align-self:flex-start;font-family:'Instrument Sans',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);margin-top:4px;}
-
-  .add-place{margin-top:14px;padding:12px;border:1px dashed var(--moss);border-radius:3px;grid-column:1/-1;}
-  .add-place summary{font-family:'Instrument Sans',monospace;font-size:11.5px;color:var(--moss);cursor:pointer;}
-  .add-place .fields{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
-  .add-place input, .add-place select, .add-place textarea{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--card);width:100%;}
-  .add-place .save-btn{align-self:flex-start;font-family:'Instrument Sans',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
-
-  footer{max-width:900px;margin:0 auto;padding:40px 22px 60px;border-top:1px solid var(--line);}
+  footer{max-width:1100px;margin:0 auto;padding:40px 22px 60px;border-top:1px solid var(--line);}
   footer p{font-family:'Instrument Sans',sans-serif;font-size:11.5px;letter-spacing:.01em;color:var(--ink-soft);line-height:1.7;max-width:58ch;}
 
   .divider{display:flex;align-items:center;gap:10px;margin:56px 0 0;opacity:.55;}
-  .divider svg{width:18px;height:18px;flex:none;color:var(--moss);}
   .divider .rule{flex:1;height:1px;background:var(--line);}
-
-  .login-box{display:none;position:fixed;top:68px;right:22px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;width:240px;box-shadow:0 8px 24px var(--shadow);z-index:51;}
-  .login-box.open{display:block;}
-  .login-box input{width:100%;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;margin-bottom:8px;background:var(--paper);}
-  .login-box button{width:100%;font-family:'Instrument Sans',sans-serif;font-size:11.5px;padding:7px;border-radius:4px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);margin-bottom:6px;}
-  .login-box .msg{font-family:'Instrument Sans',sans-serif;font-size:10.5px;color:var(--ink-soft);}
 
   @media (min-width:640px){.cards{grid-template-columns:1fr 1fr;}}
   @media (min-width:980px){.cards{grid-template-columns:1fr 1fr 1fr;}}
 
-  /* ---- mobile refinements ---- */
   @media (max-width:640px){
-    .topbar{padding:14px 16px;gap:8px;}
-    .wordmark{font-size:14px;}
-    .topbar-right{gap:6px;}
-    .city-select{padding:5px 10px;font-size:11px;max-width:92px;}
-    .admin-pill{display:none;}
-    .admin-btn{padding:6px 11px;font-size:10.5px;}
-
-    .hero{padding:96px 16px 40px;}
-    .hero .eyebrow{font-size:10.5px;letter-spacing:.12em;margin-bottom:14px;}
-    .hero h1{margin-bottom:18px;}
-    .hero p.lede{font-size:16px;max-width:100%;}
-    .hero .note{font-size:11.5px;}
-
-    .filter-wrap{top:56px;padding:12px 16px 10px;}
-    .search-row{flex-wrap:wrap;}
-    .search-row input{min-width:0;flex-basis:100%;padding:11px 14px;}
-    .sort-btn{flex:1;text-align:center;padding:10px 12px;}
-    .chip{padding:8px 14px;font-size:12px;}
-
+    .fab-row{top:16px;right:16px;}
+    .menu-btn{width:42px;height:42px;}
+    .hero{padding:96px 16px 56px;}
     main{padding:8px 16px 64px;}
     .section{margin-top:48px;}
     .section h2{font-size:26px;}
     .card{padding:14px 15px 16px;}
     .card .photo{height:180px;}
-
-    .admin-edit .row2{grid-template-columns:1fr;}
-    .login-box{left:16px;right:16px;width:auto;}
+    .menu-panel{width:100vw;padding:88px 20px 24px;}
+    #placesMap{height:calc(100vh - 160px);}
   }
 </style>
 </head>
 <body>
 
-<div class="topbar" id="topbar">
-  <div class="wordmark">Vegano<span>·</span>Vigo</div>
-  <div class="topbar-right">
-    <select class="city-select" id="citySelect"></select>
-    <div class="admin-pill" id="adminPill"></div>
-    <button class="admin-btn" id="adminBtn">Acceso admin</button>
-  </div>
+<div class="fab-row">
+  <button class="menu-btn" id="menuBtn" aria-label="Menú" aria-expanded="false"><span></span><span></span><span></span></button>
 </div>
 
-<div class="login-box" id="loginBox">
-  <div id="loginStep1">
-    <input type="text" id="loginEmail" placeholder="teu correo">
-    <button id="sendCodeBtn">Enviar código</button>
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="menu-panel" id="menuPanel">
+  <div>
+    <div class="menu-section-label">Vista</div>
+    <div class="view-toggle" id="viewToggle">
+      <button data-view="list" class="active">Lista</button>
+      <button data-view="map">Mapa</button>
+    </div>
   </div>
-  <div class="msg" id="loginMsg"></div>
+  <div>
+    <div class="menu-section-label">Buscar</div>
+    <input type="text" class="menu-search" id="searchInput" placeholder="Nome, zona ou tipo de comida...">
+  </div>
+  <div>
+    <div class="menu-section-label">Vegano?</div>
+    <div class="menu-chip-row" id="veganLegend">
+      <button class="menu-chip active" data-vfilter="all">Todo</button>
+      <button class="menu-chip" data-vfilter="vegano_100">100% vegano</button>
+      <button class="menu-chip" data-vfilter="vexetariano">Vexetariano</button>
+      <button class="menu-chip" data-vfilter="opciones">Opcións veganas</button>
+      <button class="menu-chip" data-vfilter="sen_confirmar">Sen confirmar</button>
+    </div>
+  </div>
+  <div>
+    <div class="menu-section-label">Probado</div>
+    <div class="menu-chip-row" id="triedLegend">
+      <button class="menu-chip active" data-tfilter="all">Todo</button>
+      <button class="menu-chip" data-tfilter="tried">✓ Probado</button>
+      <button class="menu-chip" data-tfilter="untried">○ Por probar</button>
+    </div>
+  </div>
+  <div>
+    <div class="menu-section-label">Orde</div>
+    <button class="menu-sort-btn" id="sortBtn">Ordenar por nota ↓</button>
+  </div>
+  <div class="menu-footer-note">Guía persoal de Nerea e Ricardo. As notas non son públicas, non hai comentarios abertos.</div>
 </div>
 
 <div class="hero">
   <div class="hero-inner">
-    <div class="eyebrow">Guía persoal de Nerea e Ricardo</div>
     <h1><em>Vegano</em> en <span class="city-switch" id="cityTrigger" tabindex="0" role="button" aria-haspopup="listbox" aria-expanded="false"><span id="cityName">Vigo</span><svg class="city-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg><div class="city-menu" id="cityMenu" role="listbox"></div></span></h1>
-    <p class="lede">Catálogo persoal de sitios vexetais para comer en <span id="cityName2">Vigo</span>, con nota sobre 10 posta por Nerea e Ricardo.</p>
-    <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
   </div>
   <div class="scroll-cue"><span></span>Scroll</div>
 </div>
 
-<div class="filter-wrap">
-  <div class="filter-inner">
-    <div class="search-row">
-      <input type="text" id="searchInput" placeholder="Buscar por nome, zona ou tipo de comida (ex. ramen, brunch...)">
-      <button class="sort-btn" id="sortBtn">Nota ↓</button>
-    </div>
-    <div class="chip-row" id="veganLegend">
-      <button class="chip active" data-vfilter="all">Todo</button>
-      <button class="chip" data-vfilter="vegano_100"><span class="dot" style="background:var(--moss)"></span>100% vegano</button>
-      <button class="chip" data-vfilter="vexetariano"><span class="dot" style="background:var(--turmeric)"></span>Vexetariano</button>
-      <button class="chip" data-vfilter="opciones"><span class="dot" style="background:var(--clay)"></span>Opcións veganas</button>
-      <button class="chip" data-vfilter="sen_confirmar"><span class="dot" style="background:var(--gray)"></span>Sen confirmar</button>
-    </div>
-    <div class="chip-row" id="triedLegend">
-      <button class="chip active" data-tfilter="all">Todo</button>
-      <button class="chip" data-tfilter="tried">✓ Probado</button>
-      <button class="chip" data-tfilter="untried">○ Por probar</button>
-    </div>
-  </div>
-</div>
-
 <main id="main">
-  <div style="font-family:'Instrument Sans',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando...</div>
+  <div id="listView">
+    <div style="font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando...</div>
+  </div>
+  <div id="mapView">
+    <div id="placesMap"></div>
+  </div>
 </main>
 
 <footer>
-  <p>Datos en Supabase, actualízanse en tempo real. Nerea e Ricardo poden editar calquera ficha (nome, tipo de local, tipo de vegano, nota /10, tipo de comida, Maps, Instagram) ou engadir/eliminar sitios con acceso admin.</p>
+  <p>Catálogo persoal de sitios vexetais, con nota sobre 10 posta por Nerea e Ricardo.</p>
 </footer>
 
 <script>
@@ -239,8 +214,6 @@ const PLACE_TYPES = [
   {key:"furancho", tag:"Vendima", title:"Furanchos", desc:"O vexetal depende da tapa da casa, o viño sempre é seguro."}
 ];
 
-let currentUser = null;
-let isAdmin = false;
 let placesData = [];
 let citiesData = [];
 let currentCity = localStorage.getItem('vv-city') || 'vigo';
@@ -248,107 +221,12 @@ let vFilter = 'all';
 let tFilter = 'all';
 let searchTerm = '';
 let sortByScore = false;
+let currentView = 'list';
+let leafletMap = null;
+let markerLayer = null;
 
 const igSearch = name => `https://www.google.com/search?q=${encodeURIComponent(name + ' Vigo instagram')}`;
 const escapeHTML = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
-const escapeAttr = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-
-const topbarEl = document.getElementById('topbar');
-const toggleTopbarBg = () => topbarEl.classList.toggle('scrolled', window.scrollY > window.innerHeight * 0.7);
-window.addEventListener('scroll', toggleTopbarBg, { passive: true });
-toggleTopbarBg();
-
-async function loadCities(){
-  const { data, error } = await sb.from('cities').select('*').order('sort_order');
-  if(error || !data || !data.length){ citiesData = [{id:'vigo', name:'Vigo'}]; }
-  else { citiesData = data; }
-  if(!citiesData.find(c => c.id === currentCity)) currentCity = citiesData[0].id;
-  const sel = document.getElementById('citySelect');
-  sel.innerHTML = citiesData.map(c => `<option value="${c.id}" ${c.id===currentCity?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
-  renderCityMenu();
-  updateCityCopy();
-}
-
-function updateCityCopy(){
-  const city = citiesData.find(c => c.id === currentCity);
-  const name = city ? city.name : 'Vigo';
-  document.getElementById('cityName').textContent = name;
-  document.getElementById('cityName2').textContent = name;
-  document.title = `${name} vegano — sitios vexetais para comer`;
-  fitHeroTitle();
-}
-
-function fitHeroTitle(){
-  const h1 = document.querySelector('.hero h1');
-  const container = document.querySelector('.hero-inner');
-  if(!h1 || !container) return;
-  h1.style.fontSize = '';
-  requestAnimationFrame(() => {
-    const maxWidth = container.clientWidth;
-    let size = parseFloat(getComputedStyle(h1).fontSize);
-    let guard = 0;
-    while(h1.scrollWidth > maxWidth && size > 18 && guard < 60){
-      size -= 2;
-      h1.style.fontSize = size + 'px';
-      guard++;
-    }
-    document.querySelectorAll('.city-menu-item').forEach(item => {
-      item.style.fontSize = size + 'px';
-      let itemSize = size, g2 = 0;
-      while(item.scrollWidth > maxWidth && itemSize > 18 && g2 < 60){
-        itemSize -= 2;
-        item.style.fontSize = itemSize + 'px';
-        g2++;
-      }
-    });
-  });
-}
-window.addEventListener('resize', () => { clearTimeout(window._fitT); window._fitT = setTimeout(fitHeroTitle, 120); });
-
-function renderCityMenu(){
-  const menu = document.getElementById('cityMenu');
-  const others = citiesData.filter(c => c.id !== currentCity);
-  menu.innerHTML = others.length
-    ? others.map(c => `<div class="city-menu-item" role="option" tabindex="0" data-city="${c.id}">${escapeHTML(c.name)}</div>`).join('')
-    : `<div class="city-menu-empty">Só ${escapeHTML((citiesData.find(c=>c.id===currentCity)||{}).name || '')} por agora</div>`;
-}
-
-async function setCity(cityId){
-  if(cityId === currentCity) return;
-  currentCity = cityId;
-  localStorage.setItem('vv-city', currentCity);
-  document.getElementById('citySelect').value = currentCity;
-  renderCityMenu();
-  updateCityCopy();
-  await loadData();
-}
-
-document.getElementById('citySelect').addEventListener('change', (e) => setCity(e.target.value));
-
-const cityTrigger = document.getElementById('cityTrigger');
-const cityMenu = document.getElementById('cityMenu');
-
-cityMenu.addEventListener('click', (e) => {
-  const item = e.target.closest('.city-menu-item');
-  if(!item) return;
-  setCity(item.dataset.city);
-  cityTrigger.classList.remove('open');
-  cityTrigger.setAttribute('aria-expanded', 'false');
-});
-
-cityTrigger.addEventListener('click', (e) => {
-  e.stopPropagation();
-  const open = cityTrigger.classList.toggle('open');
-  cityTrigger.setAttribute('aria-expanded', String(open));
-});
-cityTrigger.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cityTrigger.click(); }
-  if(e.key === 'Escape'){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
-});
-document.addEventListener('click', (e) => {
-  if(!cityTrigger.contains(e.target)){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
-});
-
 
 async function loadData(){
   const { data: places, error } = await sb.from('places').select('*').eq('city', currentCity).order('place_type').order('sort_order');
@@ -365,7 +243,7 @@ function cardHTML(place){
   const web = place.website_url ? `<a href="${place.website_url}" target="_blank" rel="noopener">🌐 Web</a>` : '';
   const scoreBadge = (place.score !== null && place.score !== undefined) ? `<div class="score">${Number(place.score)}/10</div>` : '';
   const cuisine = place.cuisine_tag ? `<span class="cuisine">${escapeHTML(place.cuisine_tag)}</span>` : '';
-  const photo = place.photo_url ? `<img class="photo" src="${place.photo_url}" alt="${escapeAttr(place.name)}" loading="lazy" onerror="this.remove()">` : '';
+  const photo = place.photo_url ? `<img class="photo" src="${place.photo_url}" alt="${escapeHTML(place.name)}" loading="lazy" onerror="this.remove()">` : '';
   return `
   <div class="card" data-vegan="${place.vegan_status}" data-tried="${place.score !== null ? 'tried' : 'untried'}" data-id="${place.id}">
     ${photo}
@@ -376,80 +254,11 @@ function cardHTML(place){
     ${cuisine}
     <div class="note">${escapeHTML(place.note||'')}</div>
     <div class="links">${maps}${web}${ig}</div>
-    <button class="admin-toggle-edit ${isAdmin?'show':''}" onclick="toggleEdit('${place.id}')">✎ editar ficha</button>
-    <button class="admin-del ${isAdmin?'show':''}" onclick="deletePlace('${place.id}','${escapeAttr(place.name)}')">🗑 eliminar</button>
-    <div class="admin-edit" id="edit-${place.id}">
-      <label>Nome</label>
-      <input type="text" id="editname-${place.id}" value="${escapeAttr(place.name)}">
-      <label>Localización</label>
-      <input type="text" id="editloc-${place.id}" value="${escapeAttr(place.location||'')}">
-      <div class="row2">
-        <div>
-          <label>Tipo de local</label>
-          <select id="editptype-${place.id}">
-            ${PLACE_TYPES.map(s=>`<option value="${s.key}" ${s.key===place.place_type?'selected':''}>${s.title}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <label>Vegano?</label>
-          <select id="editvegan-${place.id}">
-            ${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}" ${s===place.vegan_status?'selected':''}>${VEGAN_LABEL[s]}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <label>Cidade</label>
-      <select id="editcity-${place.id}">
-        ${citiesData.map(c=>`<option value="${c.id}" ${c.id===place.city?'selected':''}>${escapeHTML(c.name)}</option>`).join('')}
-      </select>
-      <label>Tipo de comida (ex. pizza, ramen, hamburguesas)</label>
-      <input type="text" id="editcuisine-${place.id}" value="${escapeAttr(place.cuisine_tag||'')}">
-      <label>Nota (0–10, deixa baleiro se aínda non probastes)</label>
-      <input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
-      <label>Foto</label>
-      ${place.photo_url ? `<img src="${place.photo_url}" style="width:100%;height:100px;object-fit:cover;border-radius:3px;">` : ''}
-      <input type="file" id="editphoto-${place.id}" accept="image/*">
-      ${place.photo_url ? `<label style="margin-top:0;"><input type="checkbox" id="editphotorm-${place.id}" style="width:auto;"> quitar foto actual</label>` : ''}
-      <label>Ligazón Google Maps</label>
-      <input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
-      <label>Web propia ou carta (opcional)</label>
-      <input type="text" id="editweb-${place.id}" value="${escapeAttr(place.website_url||'')}">
-      <label>Ligazón Instagram (baleiro = busca automática)</label>
-      <input type="text" id="editig-${place.id}" value="${escapeAttr(place.instagram_url||'')}">
-      <label>Nota / descrición</label>
-      <textarea id="editnote-${place.id}" rows="3">${escapeHTML(place.note||'')}</textarea>
-      <button class="save-btn" onclick="saveEdit('${place.id}')">Gardar</button>
-    </div>
   </div>`;
 }
 
-function addPlaceFormHTML(sectionKey){
-  const uid = 'new-' + sectionKey;
-  return `
-  <details class="add-place">
-    <summary>+ engadir ficha nova</summary>
-    <div class="fields">
-      <input type="text" id="${uid}-name" placeholder="Nome">
-      <input type="text" id="${uid}-loc" placeholder="Localización (opcional)">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <select id="${uid}-vegan">
-          ${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}">${VEGAN_LABEL[s]}</option>`).join('')}
-        </select>
-        <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
-      </div>
-      <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida (ex. pizza, ramen...)">
-      <label style="font-family:'Instrument Sans',monospace;font-size:10px;color:var(--ink-soft);">Foto (opcional)</label>
-      <input type="file" id="${uid}-photo" accept="image/*">
-      <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
-      <input type="text" id="${uid}-web" placeholder="Web propia ou carta (opcional)">
-      <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
-      <textarea id="${uid}-note" rows="2" placeholder="Nota / descrición"></textarea>
-      <button class="save-btn" onclick="addPlace('${sectionKey}')">Engadir</button>
-    </div>
-  </details>`;
-}
-
-function getFilteredSorted(items){
-  let out = items.filter(p => {
+function getFiltered(items){
+  return items.filter(p => {
     if(vFilter !== 'all' && p.vegan_status !== vFilter) return false;
     if(tFilter === 'tried' && p.score === null) return false;
     if(tFilter === 'untried' && p.score !== null) return false;
@@ -459,26 +268,24 @@ function getFilteredSorted(items){
     }
     return true;
   });
-  if(sortByScore){
-    out = out.slice().sort((a,b) => (b.score ?? -1) - (a.score ?? -1));
-  }
+}
+function getFilteredSorted(items){
+  let out = getFiltered(items);
+  if(sortByScore) out = out.slice().sort((a,b) => (b.score ?? -1) - (a.score ?? -1));
   return out;
 }
 
-function render(){
-  const main = document.getElementById('main');
+function renderList(){
+  const main = document.getElementById('listView');
   main.innerHTML = '';
-  if(!placesData.length && !isAdmin){
-    const city = citiesData.find(c => c.id === currentCity);
-    main.innerHTML = `<div class="empty-msg" style="text-align:center;padding:40px 0;font-size:13px;">Aínda non hai fichas para ${escapeHTML(city ? city.name : '')}. Volve pronto 🌱</div>`;
-    return;
-  }
+  let any = false;
   PLACE_TYPES.forEach((sec, i) => {
     const all = placesData.filter(p => p.place_type === sec.key);
     const items = getFilteredSorted(all);
-    if(!all.length && !isAdmin) return;
+    if(!all.length) return;
+    any = true;
     if(i>0){
-      main.innerHTML += `<div class="divider"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/></svg><div class="rule"></div></div>`;
+      main.innerHTML += `<div class="divider"><div class="rule"></div></div>`;
     }
     main.innerHTML += `
       <section class="section">
@@ -486,141 +293,91 @@ function render(){
         <h2>${sec.title}</h2>
         ${sec.desc ? `<p class="desc">${sec.desc}</p>` : ''}
         ${(!items.length) ? `<div class="empty-msg">Ningún resultado con estes filtros.</div>` : ''}
-        <div class="cards">${items.map(cardHTML).join('')}${isAdmin ? addPlaceFormHTML(sec.key) : ''}</div>
+        <div class="cards">${items.map(cardHTML).join('')}</div>
       </section>`;
   });
-}
-
-function toggleEdit(id){
-  document.getElementById('edit-'+id).classList.toggle('on');
-}
-
-function resizeImageFile(file, maxDim=1000, quality=0.82){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Non se puido ler o ficheiro'));
-    reader.onload = e => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('Non se puido cargar a imaxe'));
-      img.onload = () => {
-        let { width, height } = img;
-        if(width > height){
-          if(width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; }
-        } else {
-          if(height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => {
-          if(!blob) return reject(new Error('Non se puido comprimir a imaxe'));
-          resolve(blob);
-        }, 'image/jpeg', quality);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-async function uploadPhotoIfAny(placeId, fileInputId){
-  const fileInput = document.getElementById(fileInputId);
-  const file = fileInput && fileInput.files[0];
-  if(!file) return undefined; // no change
-  let blob;
-  try { blob = await resizeImageFile(file); }
-  catch(err){ alert('Erro procesando a imaxe: ' + err.message); return undefined; }
-  const path = `${placeId}-${Date.now()}.jpg`;
-  const { error } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-  if(error){ alert('Erro subindo a foto: ' + error.message); return undefined; }
-  const { data } = sb.storage.from('place-photos').getPublicUrl(path);
-  return data.publicUrl;
-}
-
-async function saveEdit(placeId){
-  const scoreVal = document.getElementById('editscore-'+placeId).value;
-  const igVal = document.getElementById('editig-'+placeId).value.trim();
-  const removePhoto = document.getElementById('editphotorm-'+placeId) && document.getElementById('editphotorm-'+placeId).checked;
-  const uploadedUrl = await uploadPhotoIfAny(placeId, 'editphoto-'+placeId);
-  const payload = {
-    name: document.getElementById('editname-'+placeId).value.trim(),
-    location: document.getElementById('editloc-'+placeId).value.trim() || null,
-    place_type: document.getElementById('editptype-'+placeId).value,
-    vegan_status: document.getElementById('editvegan-'+placeId).value,
-    city: document.getElementById('editcity-'+placeId).value,
-    cuisine_tag: document.getElementById('editcuisine-'+placeId).value.trim() || null,
-    score: scoreVal === '' ? null : Number(scoreVal),
-    maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
-    website_url: document.getElementById('editweb-'+placeId).value.trim() || null,
-    instagram_url: igVal || null,
-    instagram_verified: !!igVal,
-    note: document.getElementById('editnote-'+placeId).value
-  };
-  if(uploadedUrl) payload.photo_url = uploadedUrl;
-  else if(removePhoto) payload.photo_url = null;
-  const { error } = await sb.from('places').update(payload).eq('id', placeId);
-  if(error){ alert('Erro ao gardar: ' + error.message); return; }
-  await loadData();
-}
-
-async function deletePlace(placeId, name){
-  if(!confirm(`Eliminar "${name}" da lista?`)) return;
-  const { error } = await sb.from('places').delete().eq('id', placeId);
-  if(error){ alert('Erro ao eliminar: ' + error.message); return; }
-  await loadData();
-}
-
-async function addPlace(sectionKey){
-  const uid = 'new-' + sectionKey;
-  const name = document.getElementById(`${uid}-name`).value.trim();
-  if(!name){ alert('Pon polo menos o nome.'); return; }
-  const scoreVal = document.getElementById(`${uid}-score`).value;
-  const igVal = document.getElementById(`${uid}-ig`).value.trim();
-  const maxSort = Math.max(0, ...placesData.filter(p=>p.place_type===sectionKey).map(p=>p.sort_order||0));
-  let photoUrl = null;
-  const photoFile = document.getElementById(`${uid}-photo`).files[0];
-  if(photoFile){
-    let blob;
-    try { blob = await resizeImageFile(photoFile); }
-    catch(err){ alert('Erro procesando a imaxe: ' + err.message); return; }
-    const path = `new-${Date.now()}.jpg`;
-    const { error: upErr } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-    if(upErr){ alert('Erro subindo a foto: ' + upErr.message); return; }
-    photoUrl = sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+  if(!any){
+    const city = citiesData.find(c => c.id === currentCity);
+    main.innerHTML = `<div class="empty-msg" style="text-align:center;padding:40px 0;font-size:13px;">Aínda non hai fichas para ${escapeHTML(city ? city.name : '')}. Volve pronto 🌱</div>`;
   }
-  const payload = {
-    name,
-    location: document.getElementById(`${uid}-loc`).value.trim() || null,
-    place_type: sectionKey,
-    vegan_status: document.getElementById(`${uid}-vegan`).value,
-    city: currentCity,
-    cuisine_tag: document.getElementById(`${uid}-cuisine`).value.trim() || null,
-    score: scoreVal === '' ? null : Number(scoreVal),
-    maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
-    website_url: document.getElementById(`${uid}-web`).value.trim() || null,
-    instagram_url: igVal || null,
-    instagram_verified: !!igVal,
-    photo_url: photoUrl,
-    note: document.getElementById(`${uid}-note`).value,
-    sort_order: maxSort + 1,
-    category: 'comida',
-    status: 'opciones'
-  };
-  const { error } = await sb.from('places').insert(payload);
-  if(error){ alert('Erro ao engadir: ' + error.message); return; }
-  await loadData();
 }
+
+function ensureMap(){
+  if(leafletMap) return;
+  leafletMap = L.map('placesMap', { scrollWheelZoom: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19
+  }).addTo(leafletMap);
+  markerLayer = L.layerGroup().addTo(leafletMap);
+}
+
+function renderMap(){
+  ensureMap();
+  markerLayer.clearLayers();
+  const all = getFilteredSorted(placesData).filter(p => p.lat && p.lng);
+  const bounds = [];
+  all.forEach(p => {
+    const marker = L.circleMarker([p.lat, p.lng], {
+      radius: 7, color: '#18170F', weight: 1.5, fillColor: '#F7F6F1', fillOpacity: 1
+    });
+    const scoreTxt = (p.score !== null && p.score !== undefined) ? `${Number(p.score)}/10` : 'sen probar';
+    marker.bindPopup(`<div class="map-popup"><div class="mp-name">${escapeHTML(p.name)}</div><div class="mp-meta">${VEGAN_LABEL[p.vegan_status]} · ${scoreTxt}</div>${p.maps_url ? `<a href="${p.maps_url}" target="_blank" rel="noopener">Ver en Maps →</a>` : ''}</div>`);
+    marker.addTo(markerLayer);
+    bounds.push([p.lat, p.lng]);
+  });
+  const city = citiesData.find(c => c.id === currentCity);
+  if(bounds.length){
+    leafletMap.fitBounds(bounds, { padding: [40,40], maxZoom: 16 });
+  } else if(city && city.center_lat){
+    leafletMap.setView([city.center_lat, city.center_lng], city.default_zoom || 13);
+  } else {
+    leafletMap.setView([42.2328, -8.7226], 13);
+  }
+  setTimeout(() => leafletMap.invalidateSize(), 200);
+}
+
+function render(){
+  if(currentView === 'list'){ renderList(); }
+  else { renderMap(); }
+}
+
+function setView(view){
+  currentView = view;
+  document.getElementById('listView').classList.toggle('hidden', view !== 'list');
+  document.getElementById('mapView').classList.toggle('active', view === 'map');
+  document.querySelectorAll('#viewToggle button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  render();
+}
+document.getElementById('viewToggle').addEventListener('click', e => {
+  const btn = e.target.closest('button'); if(!btn) return;
+  setView(btn.dataset.view);
+});
+
+/* ---- hamburger menu ---- */
+const menuBtn = document.getElementById('menuBtn');
+const menuPanel = document.getElementById('menuPanel');
+const menuOverlay = document.getElementById('menuOverlay');
+function toggleMenu(open){
+  const isOpen = open ?? !menuPanel.classList.contains('open');
+  menuPanel.classList.toggle('open', isOpen);
+  menuOverlay.classList.toggle('open', isOpen);
+  menuBtn.classList.toggle('open', isOpen);
+  menuBtn.setAttribute('aria-expanded', String(isOpen));
+}
+menuBtn.addEventListener('click', () => toggleMenu());
+menuOverlay.addEventListener('click', () => toggleMenu(false));
 
 document.getElementById('veganLegend').addEventListener('click', e => {
-  const chip = e.target.closest('.chip'); if(!chip) return;
-  document.querySelectorAll('#veganLegend .chip').forEach(c => c.classList.remove('active'));
+  const chip = e.target.closest('.menu-chip'); if(!chip) return;
+  document.querySelectorAll('#veganLegend .menu-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
   vFilter = chip.dataset.vfilter;
   render();
 });
 document.getElementById('triedLegend').addEventListener('click', e => {
-  const chip = e.target.closest('.chip'); if(!chip) return;
-  document.querySelectorAll('#triedLegend .chip').forEach(c => c.classList.remove('active'));
+  const chip = e.target.closest('.menu-chip'); if(!chip) return;
+  document.querySelectorAll('#triedLegend .menu-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
   tFilter = chip.dataset.tfilter;
   render();
@@ -635,55 +392,82 @@ document.getElementById('sortBtn').addEventListener('click', () => {
   render();
 });
 
-/* ---- admin auth (magic link) ---- */
-const adminBtn = document.getElementById('adminBtn');
-const loginBox = document.getElementById('loginBox');
-const adminPill = document.getElementById('adminPill');
-
-adminBtn.addEventListener('click', () => {
-  if(isAdmin){ sb.auth.signOut(); return; }
-  loginBox.classList.toggle('open');
-});
-
-document.getElementById('sendCodeBtn').addEventListener('click', async () => {
-  const email = document.getElementById('loginEmail').value.trim();
-  if(!email) return;
-  document.getElementById('loginMsg').textContent = 'Enviando...';
-  const { error } = await sb.auth.signInWithOtp({ email });
-  if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
-  document.getElementById('loginMsg').textContent = 'Revisa o teu correo e preme na ligazón. Non fai falta código.';
-});
-
-async function checkAdminFromUser(){
-  if(!currentUser){ isAdmin = false; updateAdminUI(); return; }
-  const { data } = await sb.from('admins').select('user_id').eq('user_id', currentUser.id).maybeSingle();
-  isAdmin = !!data;
-  updateAdminUI();
+/* ---- city switcher ---- */
+async function loadCities(){
+  const { data, error } = await sb.from('cities').select('*').order('sort_order');
+  if(error || !data || !data.length){ citiesData = [{id:'vigo', name:'Vigo'}]; }
+  else { citiesData = data; }
+  if(!citiesData.find(c => c.id === currentCity)) currentCity = citiesData[0].id;
+  renderCityMenu();
+  updateCityCopy();
 }
-
-function updateAdminUI(){
-  if(isAdmin){
-    adminBtn.textContent = 'Saír (admin)';
-    adminBtn.classList.add('on');
-    adminPill.textContent = currentUser ? currentUser.email : '';
-  } else if(currentUser){
-    adminBtn.textContent = 'Acceso admin';
-    adminBtn.classList.remove('on');
-    adminPill.textContent = '(sen permisos admin)';
-  } else {
-    adminBtn.textContent = 'Acceso admin';
-    adminBtn.classList.remove('on');
-    adminPill.textContent = '';
-  }
-  render();
+function updateCityCopy(){
+  const city = citiesData.find(c => c.id === currentCity);
+  const name = city ? city.name : 'Vigo';
+  document.getElementById('cityName').textContent = name;
+  document.title = `${name} vegano — sitios vexetais para comer`;
+  fitHeroTitle();
 }
+function fitHeroTitle(){
+  const h1 = document.querySelector('.hero h1');
+  const container = document.querySelector('.hero-inner');
+  if(!h1 || !container) return;
+  h1.style.fontSize = '';
+  requestAnimationFrame(() => {
+    const maxWidth = container.clientWidth;
+    let size = parseFloat(getComputedStyle(h1).fontSize);
+    let guard = 0;
+    while(h1.scrollWidth > maxWidth && size > 18 && guard < 60){
+      size -= 2; h1.style.fontSize = size + 'px'; guard++;
+    }
+    document.querySelectorAll('.city-menu-item').forEach(item => {
+      item.style.fontSize = size + 'px';
+      let itemSize = size, g2 = 0;
+      while(item.scrollWidth > maxWidth && itemSize > 18 && g2 < 60){
+        itemSize -= 2; item.style.fontSize = itemSize + 'px'; g2++;
+      }
+    });
+  });
+}
+window.addEventListener('resize', () => { clearTimeout(window._fitT); window._fitT = setTimeout(fitHeroTitle, 120); });
 
-let initialLoadDone = false;
-sb.auth.onAuthStateChange(async (_event, session) => {
-  currentUser = session ? session.user : null;
-  await checkAdminFromUser();
-  if(!initialLoadDone){ initialLoadDone = true; await loadCities(); loadData(); }
+function renderCityMenu(){
+  const menu = document.getElementById('cityMenu');
+  const others = citiesData.filter(c => c.id !== currentCity);
+  menu.innerHTML = others.length
+    ? others.map(c => `<div class="city-menu-item" role="option" tabindex="0" data-city="${c.id}">${escapeHTML(c.name)}</div>`).join('')
+    : `<div class="city-menu-empty">Só ${escapeHTML((citiesData.find(c=>c.id===currentCity)||{}).name || '')} por agora</div>`;
+}
+async function setCity(cityId){
+  if(cityId === currentCity) return;
+  currentCity = cityId;
+  localStorage.setItem('vv-city', currentCity);
+  renderCityMenu();
+  updateCityCopy();
+  await loadData();
+}
+const cityTrigger = document.getElementById('cityTrigger');
+const cityMenu = document.getElementById('cityMenu');
+cityMenu.addEventListener('click', (e) => {
+  const item = e.target.closest('.city-menu-item'); if(!item) return;
+  setCity(item.dataset.city);
+  cityTrigger.classList.remove('open');
+  cityTrigger.setAttribute('aria-expanded', 'false');
 });
+cityTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = cityTrigger.classList.toggle('open');
+  cityTrigger.setAttribute('aria-expanded', String(open));
+});
+cityTrigger.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cityTrigger.click(); }
+  if(e.key === 'Escape'){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
+});
+document.addEventListener('click', (e) => {
+  if(!cityTrigger.contains(e.target)){ cityTrigger.classList.remove('open'); cityTrigger.setAttribute('aria-expanded','false'); }
+});
+
+(async () => { await loadCities(); await loadData(); })();
 </script>
 
 </body>
