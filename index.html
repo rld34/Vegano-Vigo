@@ -32,10 +32,10 @@
   .admin-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
 
   .hero{min-height:100svh;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px 22px 56px;position:relative;}
-  .hero-inner{max-width:1100px;margin:0 auto;width:100%;}
+  .hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;}
   .hero .eyebrow{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:22px;}
   .hero .eyebrow .leaf{width:14px;height:14px;flex:none;}
-  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(56px,12vw,148px);line-height:.92;margin:0 0 28px;letter-spacing:-0.035em;}
+  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(30px,9vw,148px);line-height:.92;margin:0 0 28px;letter-spacing:-0.035em;white-space:nowrap;}
   .hero h1 em{font-style:normal;font-weight:400;color:var(--ink-soft);}
   .hero p.lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:46ch;margin:0 0 20px;font-weight:400;}
   .hero .note{font-family:'Instrument Sans',sans-serif;font-size:12.5px;letter-spacing:.01em;line-height:1.6;color:var(--ink-soft);border-left:1px solid var(--ink);padding-left:14px;max-width:56ch;}
@@ -45,12 +45,11 @@
   .city-switch:focus-visible{outline:2px solid var(--ink);outline-offset:6px;}
   .city-chevron{width:.22em;height:.22em;vertical-align:middle;margin-left:.06em;position:relative;top:-0.06em;transition:transform .3s ease;stroke-width:2.4;}
   .city-switch.open .city-chevron{transform:rotate(180deg);}
-  .city-menu{position:absolute;left:0;top:104%;min-width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;box-shadow:0 16px 40px var(--shadow);opacity:0;visibility:hidden;transform:translateY(-10px);transition:opacity .28s ease,transform .28s cubic-bezier(.4,0,.2,1),visibility .28s;z-index:5;}
-  .city-switch:hover .city-menu, .city-switch.open .city-menu{opacity:1;visibility:visible;transform:translateY(0);}
-  .city-menu-item{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(22px,3.2vw,34px);font-weight:600;letter-spacing:-0.02em;color:var(--ink-soft);padding:6px 14px;border-radius:5px;white-space:nowrap;transition:color .18s ease,background .18s ease;cursor:pointer;}
-  .city-menu-item:hover, .city-menu-item:focus-visible{color:var(--ink);background:var(--paper);}
-  .city-menu-item.current{color:var(--ink);}
-  .city-menu-empty{font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--ink-soft);padding:8px 14px;white-space:nowrap;}
+  .city-menu{position:absolute;left:0;right:0;bottom:100%;margin-bottom:10px;display:flex;flex-direction:column;align-items:flex-start;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .32s ease,transform .32s cubic-bezier(.4,0,.2,1),visibility .32s;z-index:5;pointer-events:none;}
+  .city-switch:hover .city-menu, .city-switch.open .city-menu{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
+  .city-menu-item{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(30px,9vw,148px);font-weight:600;letter-spacing:-0.035em;line-height:1.05;white-space:nowrap;color:rgba(24,23,15,0.16);transition:color .2s ease;cursor:pointer;}
+  .city-menu-item:hover, .city-menu-item:focus-visible{color:var(--ink);}
+  .city-menu-empty{font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink-soft);white-space:nowrap;}
   .scroll-cue{position:absolute;right:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
   .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
   @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
@@ -245,7 +244,35 @@ function updateCityCopy(){
   document.getElementById('cityName').textContent = name;
   document.getElementById('cityName2').textContent = name;
   document.title = `${name} vegano — sitios vexetais para comer`;
+  fitHeroTitle();
 }
+
+function fitHeroTitle(){
+  const h1 = document.querySelector('.hero h1');
+  const container = document.querySelector('.hero-inner');
+  if(!h1 || !container) return;
+  h1.style.fontSize = '';
+  requestAnimationFrame(() => {
+    const maxWidth = container.clientWidth;
+    let size = parseFloat(getComputedStyle(h1).fontSize);
+    let guard = 0;
+    while(h1.scrollWidth > maxWidth && size > 18 && guard < 60){
+      size -= 2;
+      h1.style.fontSize = size + 'px';
+      guard++;
+    }
+    document.querySelectorAll('.city-menu-item').forEach(item => {
+      item.style.fontSize = size + 'px';
+      let itemSize = size, g2 = 0;
+      while(item.scrollWidth > maxWidth && itemSize > 18 && g2 < 60){
+        itemSize -= 2;
+        item.style.fontSize = itemSize + 'px';
+        g2++;
+      }
+    });
+  });
+}
+window.addEventListener('resize', () => { clearTimeout(window._fitT); window._fitT = setTimeout(fitHeroTitle, 120); });
 
 function renderCityMenu(){
   const menu = document.getElementById('cityMenu');
