@@ -328,13 +328,43 @@ function toggleEdit(id){
   document.getElementById('edit-'+id).classList.toggle('on');
 }
 
+function resizeImageFile(file, maxDim=1000, quality=0.82){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Non se puido ler o ficheiro'));
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Non se puido cargar a imaxe'));
+      img.onload = () => {
+        let { width, height } = img;
+        if(width > height){
+          if(width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; }
+        } else {
+          if(height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if(!blob) return reject(new Error('Non se puido comprimir a imaxe'));
+          resolve(blob);
+        }, 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadPhotoIfAny(placeId, fileInputId){
   const fileInput = document.getElementById(fileInputId);
   const file = fileInput && fileInput.files[0];
   if(!file) return undefined; // no change
-  const ext = file.name.split('.').pop();
-  const path = `${placeId}-${Date.now()}.${ext}`;
-  const { error } = await sb.storage.from('place-photos').upload(path, file, { upsert: true });
+  let blob;
+  try { blob = await resizeImageFile(file); }
+  catch(err){ alert('Erro procesando a imaxe: ' + err.message); return undefined; }
+  const path = `${placeId}-${Date.now()}.jpg`;
+  const { error } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
   if(error){ alert('Erro subindo a foto: ' + error.message); return undefined; }
   const { data } = sb.storage.from('place-photos').getPublicUrl(path);
   return data.publicUrl;
@@ -382,9 +412,11 @@ async function addPlace(sectionKey){
   let photoUrl = null;
   const photoFile = document.getElementById(`${uid}-photo`).files[0];
   if(photoFile){
-    const ext = photoFile.name.split('.').pop();
-    const path = `new-${Date.now()}.${ext}`;
-    const { error: upErr } = await sb.storage.from('place-photos').upload(path, photoFile, { upsert: true });
+    let blob;
+    try { blob = await resizeImageFile(photoFile); }
+    catch(err){ alert('Erro procesando a imaxe: ' + err.message); return; }
+    const path = `new-${Date.now()}.jpg`;
+    const { error: upErr } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
     if(upErr){ alert('Erro subindo a foto: ' + upErr.message); return; }
     photoUrl = sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
   }
