@@ -6,99 +6,101 @@
 <title>Vigo vegano — sitios vexetais para comer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
-    --paper:#EEE8D6; --ink:#2E3B2A; --ink-soft:#55604F; --moss:#3E5A45;
-    --turmeric:#B8811E; --clay:#9C4F2C; --gray:#8B8264; --line:#C9BEA0; --card:#F6F1E2; --shadow:rgba(46,59,42,0.14);
+    --paper:#EDEBE3; --ink:#18170F; --ink-soft:#726E62; --moss:#18170F;
+    --turmeric:#8A5A34; --clay:#9C6B45; --gray:#A6A296; --line:#DBD8CE; --card:#F7F6F1; --shadow:rgba(24,23,15,0.08);
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0;background:var(--paper);background-image:radial-gradient(circle at 1px 1px, rgba(46,59,42,0.055) 1px, transparent 0);background-size:22px 22px;color:var(--ink);font-family:'Work Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',sans-serif;-webkit-font-smoothing:antialiased;}
   @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
   a{color:inherit;}
   button{font-family:inherit;cursor:pointer;}
 
-  .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-  .city-select{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 10px;border-radius:100px;border:1px solid var(--moss);background:var(--card);color:var(--moss);}
-  .admin-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
-  .admin-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:100px;border:1px solid var(--moss);background:transparent;color:var(--moss);}
-  .admin-btn:hover{background:var(--moss);color:var(--paper);}
-  .admin-btn.on{background:var(--moss);color:var(--paper);}
+  .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .city-select{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.02em;padding:6px 12px;border-radius:100px;border:1px solid var(--ink);background:transparent;color:var(--ink);}
+  .admin-pill{font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
+  .admin-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.02em;padding:6px 14px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);}
+  .admin-btn:hover{border-color:var(--ink);color:var(--ink);}
+  .admin-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
 
-  .hero{padding:44px 22px 40px;max-width:760px;margin:0 auto;}
-  .hero .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--moss);display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+  .hero{padding:64px 22px 48px;max-width:900px;margin:0 auto;}
+  .hero .eyebrow{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:22px;}
   .hero .eyebrow .leaf{width:14px;height:14px;flex:none;}
-  .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(38px,9vw,62px);line-height:.98;margin:0 0 18px;letter-spacing:-0.01em;}
-  .hero h1 em{font-style:italic;font-weight:500;color:var(--moss);}
-  .hero p.lede{font-size:16.5px;line-height:1.6;color:var(--ink-soft);max-width:52ch;margin:0 0 22px;}
-  .hero .note{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:var(--ink-soft);border-left:2px solid var(--turmeric);padding-left:12px;max-width:56ch;}
+  .hero h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(48px,10vw,104px);line-height:.94;margin:0 0 24px;letter-spacing:-0.03em;}
+  .hero h1 em{font-style:normal;font-weight:400;color:var(--ink-soft);}
+  .hero p.lede{font-size:18px;line-height:1.55;color:var(--ink-soft);max-width:46ch;margin:0 0 20px;font-weight:400;}
+  .hero .note{font-family:'Instrument Sans',sans-serif;font-size:12.5px;letter-spacing:.01em;line-height:1.6;color:var(--ink-soft);border-left:1px solid var(--ink);padding-left:14px;max-width:56ch;}
 
   .filter-wrap{position:sticky;top:41px;z-index:5;background:linear-gradient(var(--paper) 88%, transparent);padding:14px 22px 12px;}
-  .filter-inner{max-width:760px;margin:0 auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:10px;}
+  .filter-inner{max-width:900px;margin:0 auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;gap:12px;}
   .search-row{display:flex;gap:8px;}
-  .search-row input{flex:1;font-family:'Work Sans',sans-serif;font-size:13.5px;padding:8px 12px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
+  .search-row input{flex:1;font-family:'Instrument Sans',sans-serif;font-size:14px;padding:9px 14px;border:1px solid var(--line);border-radius:100px;background:var(--card);color:var(--ink);}
+  .search-row input:focus{outline:2px solid var(--ink);outline-offset:1px;}
   .search-row input::placeholder{color:var(--ink-soft);}
-  .sort-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 12px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);white-space:nowrap;}
-  .sort-btn.on{background:var(--turmeric);border-color:var(--turmeric);color:var(--paper);}
+  .sort-btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.02em;padding:9px 14px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);white-space:nowrap;}
+  .sort-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
   .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .chip{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
-  .chip:hover{border-color:var(--moss);}
-  .chip.active{background:var(--moss);border-color:var(--moss);color:var(--paper);}
-  .chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .chip{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.01em;padding:6px 13px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);user-select:none;transition:.15s;white-space:nowrap;}
+  .chip:hover{border-color:var(--ink);color:var(--ink);}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .chip .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;}
 
-  main{max-width:760px;margin:0 auto;padding:8px 22px 80px;}
-  .section{margin-top:52px;}
-  .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
-  .section-head .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--turmeric);background:rgba(184,129,30,0.12);padding:2px 8px;border-radius:4px;}
-  .section h2{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin:0;}
-  .section .desc{font-size:14px;color:var(--ink-soft);margin:6px 0 22px;max-width:56ch;line-height:1.55;}
-  .empty-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);padding:8px 0;}
+  main{max-width:900px;margin:0 auto;padding:8px 22px 80px;}
+  .section{margin-top:64px;}
+  .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;}
+  .section-head .tag{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
+  .section h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:32px;margin:0;letter-spacing:-0.01em;}
+  .section .desc{font-size:14px;color:var(--ink-soft);margin:8px 0 26px;max-width:56ch;line-height:1.55;}
+  .empty-msg{font-family:'Instrument Sans',sans-serif;font-size:12px;color:var(--ink-soft);padding:8px 0;}
 
-  .cards{display:grid;grid-template-columns:1fr;gap:10px;}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:14px 16px 14px 20px;position:relative;transition:.15s;}
-  .card:hover{box-shadow:0 4px 14px var(--shadow);}
-  .card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-color,var(--line));}
-  .card .photo{width:100%;height:140px;object-fit:cover;border-radius:3px;margin-bottom:10px;display:block;background:var(--line);}
+  .cards{display:grid;grid-template-columns:1fr;gap:14px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px 18px 18px;position:relative;transition:.2s ease;overflow:hidden;}
+  .card:hover{box-shadow:0 8px 24px var(--shadow);transform:translateY(-1px);}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--status-color,var(--line));}
+  .card .photo{width:100%;height:210px;object-fit:cover;border-radius:3px;margin-bottom:14px;display:block;background:var(--line);}
   .card-top{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;}
-  .card .name{font-family:'Fraunces',serif;font-weight:500;font-size:17px;line-height:1.3;}
-  .card .name .loc{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;font-style:normal;}
+  .card .name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:19px;line-height:1.25;letter-spacing:-0.01em;}
+  .card .name .loc{display:block;font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);margin-top:3px;font-style:normal;font-weight:400;}
   .card .badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
-  .card .status{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:100px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
-  .card .score{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap;background:var(--moss);color:var(--paper);}
-  .card .cuisine{display:inline-block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--moss);background:rgba(62,90,69,0.1);padding:2px 8px;border-radius:100px;}
-  .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-top:8px;}
-  .card .links{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
-  .card .links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--moss);text-decoration:none;border-bottom:1px dotted var(--moss);padding-bottom:1px;}
-  .card .links a.search{color:var(--ink-soft);border-color:var(--ink-soft);}
+  .card .status{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:10px;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap;height:fit-content;color:var(--status-color);border:1px solid var(--status-color);background:none;}
+  .card .score{font-family:'Bricolage Grotesque',sans-serif;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:3px;white-space:nowrap;background:var(--ink);color:var(--paper);}
+  .card .cuisine{display:inline-block;margin-top:8px;font-family:'Instrument Sans',sans-serif;font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);}
+  .card .note{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-top:10px;}
+  .card .links{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
+  .card .links a{font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:500;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;}
+  .card .links a:hover{text-decoration-color:var(--ink);}
+  .card .links a.search{color:var(--ink-soft);}
 
-  .card[data-vegan="vegano_100"]{--status-color:var(--moss);}
+  .card[data-vegan="vegano_100"]{--status-color:var(--ink);}
   .card[data-vegan="vexetariano"]{--status-color:var(--turmeric);}
   .card[data-vegan="opciones"]{--status-color:var(--clay);}
   .card[data-vegan="sen_confirmar"]{--status-color:var(--gray);}
   .card.hide{display:none;}
 
-  .admin-toggle-edit{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:8px;margin-right:14px;}
+  .admin-toggle-edit{display:none;font-family:'Instrument Sans',sans-serif;font-size:10.5px;color:var(--turmeric);background:none;border:none;padding:0;border-bottom:1px dotted var(--turmeric);margin-top:8px;margin-right:14px;}
   .admin-toggle-edit.show{display:inline-block;}
-  .admin-del{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--clay);background:none;border:none;padding:0;border-bottom:1px dotted var(--clay);margin-top:8px;}
+  .admin-del{display:none;font-family:'Instrument Sans',monospace;font-size:10.5px;color:var(--clay);background:none;border:none;padding:0;border-bottom:1px dotted var(--clay);margin-top:8px;}
   .admin-del.show{display:inline-block;}
 
   .admin-edit{display:none;margin-top:10px;gap:7px;flex-direction:column;padding:10px;border:1px dashed var(--moss);border-radius:3px;background:rgba(255,255,255,0.35);}
   .admin-edit.on{display:flex;}
-  .admin-edit label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:-4px;}
-  .admin-edit input, .admin-edit textarea, .admin-edit select{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);width:100%;}
+  .admin-edit label{font-family:'Instrument Sans',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:-4px;}
+  .admin-edit input, .admin-edit textarea, .admin-edit select{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);width:100%;}
   .admin-edit .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .admin-edit .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);margin-top:4px;}
+  .admin-edit .save-btn{align-self:flex-start;font-family:'Instrument Sans',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--turmeric);background:var(--turmeric);color:var(--paper);margin-top:4px;}
 
   .add-place{margin-top:14px;padding:12px;border:1px dashed var(--moss);border-radius:3px;grid-column:1/-1;}
-  .add-place summary{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--moss);cursor:pointer;}
+  .add-place summary{font-family:'Instrument Sans',monospace;font-size:11.5px;color:var(--moss);cursor:pointer;}
   .add-place .fields{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
-  .add-place input, .add-place select, .add-place textarea{font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--card);width:100%;}
-  .add-place .save-btn{align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
+  .add-place input, .add-place select, .add-place textarea{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--card);width:100%;}
+  .add-place .save-btn{align-self:flex-start;font-family:'Instrument Sans',monospace;font-size:11px;padding:6px 14px;border-radius:100px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);}
 
-  footer{max-width:760px;margin:0 auto;padding:30px 22px 60px;border-top:1px solid var(--line);}
-  footer p{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.7;max-width:58ch;}
+  footer{max-width:900px;margin:0 auto;padding:40px 22px 60px;border-top:1px solid var(--line);}
+  footer p{font-family:'Instrument Sans',sans-serif;font-size:11.5px;letter-spacing:.01em;color:var(--ink-soft);line-height:1.7;max-width:58ch;}
 
   .divider{display:flex;align-items:center;gap:10px;margin:56px 0 0;opacity:.55;}
   .divider svg{width:18px;height:18px;flex:none;color:var(--moss);}
@@ -107,10 +109,11 @@
   .login-box{display:none;position:fixed;top:52px;right:22px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;width:240px;box-shadow:0 8px 24px var(--shadow);z-index:20;}
   .login-box.open{display:block;}
   .login-box input{width:100%;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;margin-bottom:8px;background:var(--paper);}
-  .login-box button{width:100%;font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:7px;border-radius:4px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);margin-bottom:6px;}
-  .login-box .msg{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
+  .login-box button{width:100%;font-family:'Instrument Sans',sans-serif;font-size:11.5px;padding:7px;border-radius:4px;border:1px solid var(--moss);background:var(--moss);color:var(--paper);margin-bottom:6px;}
+  .login-box .msg{font-family:'Instrument Sans',sans-serif;font-size:10.5px;color:var(--ink-soft);}
 
   @media (min-width:640px){.cards{grid-template-columns:1fr 1fr;}}
+  @media (min-width:980px){.cards{grid-template-columns:1fr 1fr 1fr;}}
 </style>
 </head>
 <body>
@@ -130,10 +133,7 @@
 </div>
 
 <div class="hero">
-  <div class="eyebrow">
-    <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/><path d="M4 20c2-4 5-7 9-9"/></svg>
-    Caderno vivo · Vigo e arredores
-  </div>
+  <div class="eyebrow">Guía persoal de Nerea e Ricardo</div>
   <h1><em>Vegano</em> en <span id="cityName">Vigo</span></h1>
   <p class="lede">Catálogo persoal de sitios vexetais para comer en <span id="cityName2">Vigo</span>, con nota sobre 10 posta por Nerea e Ricardo.</p>
   <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
@@ -161,7 +161,7 @@
 </div>
 
 <main id="main">
-  <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando...</div>
+  <div style="font-family:'Instrument Sans',monospace;font-size:13px;color:var(--ink-soft);padding:40px 0;text-align:center;" id="loadingMsg">Cargando...</div>
 </main>
 
 <footer>
@@ -308,7 +308,7 @@ function addPlaceFormHTML(sectionKey){
         <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
       </div>
       <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida (ex. pizza, ramen...)">
-      <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);">Foto (opcional)</label>
+      <label style="font-family:'Instrument Sans',monospace;font-size:10px;color:var(--ink-soft);">Foto (opcional)</label>
       <input type="file" id="${uid}-photo" accept="image/*">
       <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
       <input type="text" id="${uid}-web" placeholder="Web propia ou carta (opcional)">
