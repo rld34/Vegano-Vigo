@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Vegano</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --paper:#EDEBE3; --ink:#18170F; --ink-soft:#726E62; --moss:#18170F;
+    --turmeric:#8A5A34; --clay:#9C6B45; --gray:#A6A296; --line:#DBD8CE; --card:#F7F6F1; --shadow:rgba(24,23,15,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  .bar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .wordmark{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:18px;}
+  .wordmark span{color:var(--ink-soft);font-weight:400;}
+  .bar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  select, .btn{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;padding:7px 14px;border-radius:100px;border:1px solid var(--ink);background:transparent;color:var(--ink);}
+  .btn:hover{background:var(--ink);color:var(--paper);}
+  .btn.on{background:var(--ink);color:var(--paper);}
+  .pill{font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:var(--ink-soft);}
+
+  main{max-width:1100px;margin:0 auto;padding:32px 22px 80px;}
+  .gate{max-width:360px;margin:80px auto;text-align:center;}
+  .gate h1{font-family:'Bricolage Grotesque',sans-serif;font-size:28px;margin-bottom:8px;}
+  .gate p{color:var(--ink-soft);font-size:14px;margin-bottom:24px;}
+  .gate input{width:100%;font-size:14px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--card);}
+  .gate button{width:100%;font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;padding:11px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);}
+  .gate .msg{font-size:12px;color:var(--ink-soft);margin-top:10px;}
+
+  h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:24px;margin:40px 0 4px;}
+  .section-desc{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media (min-width:760px){.cards{grid-template-columns:1fr 1fr;}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;}
+  .card .top{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  .card .name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:16px;}
+  .card .meta{font-size:11px;color:var(--ink-soft);}
+  .card .actions{display:flex;gap:12px;margin-top:8px;}
+  .card .actions button{background:none;border:none;padding:0;font-size:11.5px;font-weight:500;border-bottom:1px dotted currentColor;color:var(--turmeric);}
+  .card .actions button.del{color:var(--clay);}
+
+  .edit-form{display:none;margin-top:12px;flex-direction:column;gap:8px;padding-top:12px;border-top:1px dashed var(--line);}
+  .edit-form.on{display:flex;}
+  .edit-form label{font-size:10.5px;color:var(--ink-soft);margin-bottom:-4px;}
+  .edit-form input, .edit-form select, .edit-form textarea{font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--paper);width:100%;}
+  .edit-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .edit-form .save{align-self:flex-start;margin-top:4px;font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12px;padding:8px 16px;border-radius:100px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);}
+  .edit-form img{width:100%;height:120px;object-fit:cover;border-radius:5px;}
+
+  details.add-place{margin-top:16px;padding:14px;border:1px dashed var(--ink-soft);border-radius:8px;}
+  details.add-place summary{font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:13px;cursor:pointer;}
+  details.add-place .fields{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  details.add-place input, details.add-place select, details.add-place textarea{font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--card);width:100%;}
+  details.add-place .save{align-self:flex-start;font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:12.5px;padding:9px 18px;border-radius:100px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="wordmark">Vegano<span>·admin</span></div>
+  <div class="bar-right" id="barRight"></div>
+</div>
+
+<main id="main">
+  <div class="gate" id="gate">
+    <h1>Acceso restrinxido</h1>
+    <p>Só Nerea e Ricardo poden entrar aquí. Escribe o teu correo, chegarache unha ligazón.</p>
+    <input type="text" id="loginEmail" placeholder="teu correo">
+    <button onclick="sendCode()">Enviar ligazón</button>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL = 'https://aybliczcuutagmvomdjq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_43QmCEZ878iivpQ57OSLbA_-4hEezar';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const VEGAN_LABEL = {vegano_100:"100% vegano", vexetariano:"Vexetariano", opciones:"Opcións veganas", sen_confirmar:"Sen confirmar"};
+const PLACE_TYPES = [
+  {key:"restaurante", title:"Restaurantes"},
+  {key:"brunch", title:"Brunch e almorzo"},
+  {key:"panadaria", title:"Panadarías e cafés"},
+  {key:"heladeria", title:"Xeados"},
+  {key:"furancho", title:"Furanchos"}
+];
+
+let currentUser = null;
+let isAdmin = false;
+let citiesData = [];
+let currentCity = localStorage.getItem('vv-city') || 'vigo';
+let placesData = [];
+
+const escapeHTML = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
+const escapeAttr = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+async function sendCode(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email) return;
+  document.getElementById('loginMsg').textContent = 'Enviando...';
+  const { error } = await sb.auth.signInWithOtp({ email });
+  if(error){ document.getElementById('loginMsg').textContent = 'Erro: ' + error.message; return; }
+  document.getElementById('loginMsg').textContent = 'Revisa o correo e preme na ligazón.';
+}
+
+async function checkAdminFromUser(){
+  if(!currentUser){ isAdmin = false; renderGateOrApp(); return; }
+  const { data } = await sb.from('admins').select('user_id').eq('user_id', currentUser.id).maybeSingle();
+  isAdmin = !!data;
+  renderGateOrApp();
+}
+
+function renderGateOrApp(){
+  const barRight = document.getElementById('barRight');
+  if(isAdmin){
+    barRight.innerHTML = `
+      <select id="citySelect"></select>
+      <span class="pill">${escapeHTML(currentUser.email)}</span>
+      <button class="btn" onclick="sb.auth.signOut()">Saír</button>`;
+    document.getElementById('main').innerHTML = `<div id="appRoot"></div>`;
+    loadCities();
+  } else {
+    barRight.innerHTML = currentUser ? `<span class="pill">${escapeHTML(currentUser.email)} — sen permisos</span><button class="btn" onclick="sb.auth.signOut()">Saír</button>` : '';
+    document.getElementById('main').innerHTML = `
+      <div class="gate" id="gate">
+        <h1>Acceso restrinxido</h1>
+        <p>Só Nerea e Ricardo poden entrar aquí. Escribe o teu correo, chegarache unha ligazón.</p>
+        <input type="text" id="loginEmail" placeholder="teu correo">
+        <button onclick="sendCode()">Enviar ligazón</button>
+        <div class="msg" id="loginMsg"></div>
+      </div>`;
+  }
+}
+
+async function loadCities(){
+  const { data } = await sb.from('cities').select('*').order('sort_order');
+  citiesData = data && data.length ? data : [{id:'vigo', name:'Vigo'}];
+  if(!citiesData.find(c => c.id === currentCity)) currentCity = citiesData[0].id;
+  const sel = document.getElementById('citySelect');
+  sel.innerHTML = citiesData.map(c => `<option value="${c.id}" ${c.id===currentCity?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  sel.addEventListener('change', e => { currentCity = e.target.value; localStorage.setItem('vv-city', currentCity); loadData(); });
+  loadData();
+}
+
+async function loadData(){
+  const { data, error } = await sb.from('places').select('*').eq('city', currentCity).order('place_type').order('sort_order');
+  if(error){ document.getElementById('appRoot').innerHTML = 'Erro: ' + error.message; return; }
+  placesData = data;
+  renderApp();
+}
+
+function cardHTML(place){
+  return `
+  <div class="card" data-id="${place.id}">
+    <div class="top">
+      <div>
+        <div class="name">${escapeHTML(place.name)}</div>
+        <div class="meta">${VEGAN_LABEL[place.vegan_status]} · ${place.score !== null ? place.score+'/10' : 'sen probar'}</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button onclick="toggleEdit('${place.id}')">✎ editar</button>
+      <button class="del" onclick="deletePlace('${place.id}','${escapeAttr(place.name)}')">🗑 eliminar</button>
+    </div>
+    <div class="edit-form" id="edit-${place.id}">
+      <label>Nome</label><input type="text" id="editname-${place.id}" value="${escapeAttr(place.name)}">
+      <label>Localización</label><input type="text" id="editloc-${place.id}" value="${escapeAttr(place.location||'')}">
+      <div class="row2">
+        <div><label>Tipo de local</label><select id="editptype-${place.id}">${PLACE_TYPES.map(s=>`<option value="${s.key}" ${s.key===place.place_type?'selected':''}>${s.title}</option>`).join('')}</select></div>
+        <div><label>Vegano?</label><select id="editvegan-${place.id}">${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}" ${s===place.vegan_status?'selected':''}>${VEGAN_LABEL[s]}</option>`).join('')}</select></div>
+      </div>
+      <label>Cidade</label><select id="editcity-${place.id}">${citiesData.map(c=>`<option value="${c.id}" ${c.id===place.city?'selected':''}>${escapeHTML(c.name)}</option>`).join('')}</select>
+      <label>Tipo de comida</label><input type="text" id="editcuisine-${place.id}" value="${escapeAttr(place.cuisine_tag||'')}">
+      <label>Nota (0–10, baleiro se non probastes)</label><input type="number" id="editscore-${place.id}" min="0" max="10" step="0.5" value="${place.score ?? ''}">
+      <label>Google Maps</label><input type="text" id="editmaps-${place.id}" value="${escapeAttr(place.maps_url||'')}">
+      <label>Web propia / carta</label><input type="text" id="editweb-${place.id}" value="${escapeAttr(place.website_url||'')}">
+      <label>Instagram</label><input type="text" id="editig-${place.id}" value="${escapeAttr(place.instagram_url||'')}">
+      <label>Nota / descrición</label><textarea id="editnote-${place.id}" rows="3">${escapeHTML(place.note||'')}</textarea>
+      <label>Foto</label>
+      ${place.photo_url ? `<img src="${place.photo_url}">` : ''}
+      <input type="file" id="editphoto-${place.id}" accept="image/*">
+      ${place.photo_url ? `<label style="margin-top:0;"><input type="checkbox" id="editphotorm-${place.id}" style="width:auto;"> quitar foto actual</label>` : ''}
+      <label>Latitude / Lonxitude (para o mapa)</label>
+      <div class="row2">
+        <input type="text" id="editlat-${place.id}" placeholder="lat" value="${place.lat ?? ''}">
+        <input type="text" id="editlng-${place.id}" placeholder="lng" value="${place.lng ?? ''}">
+      </div>
+      <button class="save" onclick="saveEdit('${place.id}')">Gardar</button>
+    </div>
+  </div>`;
+}
+
+function addPlaceFormHTML(sectionKey){
+  const uid = 'new-' + sectionKey;
+  return `
+  <details class="add-place">
+    <summary>+ engadir ficha nova</summary>
+    <div class="fields">
+      <input type="text" id="${uid}-name" placeholder="Nome">
+      <input type="text" id="${uid}-loc" placeholder="Localización (opcional)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <select id="${uid}-vegan">${Object.keys(VEGAN_LABEL).map(s=>`<option value="${s}">${VEGAN_LABEL[s]}</option>`).join('')}</select>
+        <input type="number" id="${uid}-score" min="0" max="10" step="0.5" placeholder="Nota /10">
+      </div>
+      <input type="text" id="${uid}-cuisine" placeholder="Tipo de comida">
+      <input type="file" id="${uid}-photo" accept="image/*">
+      <input type="text" id="${uid}-maps" placeholder="Ligazón Google Maps">
+      <input type="text" id="${uid}-web" placeholder="Web propia (opcional)">
+      <input type="text" id="${uid}-ig" placeholder="Ligazón Instagram (opcional)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <input type="text" id="${uid}-lat" placeholder="lat">
+        <input type="text" id="${uid}-lng" placeholder="lng">
+      </div>
+      <textarea id="${uid}-note" rows="2" placeholder="Nota / descrición"></textarea>
+      <button class="save" onclick="addPlace('${sectionKey}')">Engadir</button>
+    </div>
+  </details>`;
+}
+
+function renderApp(){
+  const root = document.getElementById('appRoot');
+  root.innerHTML = PLACE_TYPES.map(sec => {
+    const items = placesData.filter(p => p.place_type === sec.key);
+    return `
+      <h2>${sec.title}</h2>
+      <div class="section-desc">${items.length} ficha${items.length!==1?'s':''}</div>
+      <div class="cards">${items.map(cardHTML).join('')}</div>
+      ${addPlaceFormHTML(sec.key)}
+    `;
+  }).join('');
+}
+
+function toggleEdit(id){ document.getElementById('edit-'+id).classList.toggle('on'); }
+
+function resizeImageFile(file, maxDim=1000, quality=0.82){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Non se puido ler o ficheiro'));
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Non se puido cargar a imaxe'));
+      img.onload = () => {
+        let { width, height } = img;
+        if(width > height){ if(width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; } }
+        else { if(height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Non se puido comprimir')), 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadPhotoIfAny(placeId, fileInputId){
+  const fileInput = document.getElementById(fileInputId);
+  const file = fileInput && fileInput.files[0];
+  if(!file) return undefined;
+  let blob;
+  try { blob = await resizeImageFile(file); } catch(err){ alert('Erro procesando a imaxe: ' + err.message); return undefined; }
+  const path = `${placeId}-${Date.now()}.jpg`;
+  const { error } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+  if(error){ alert('Erro subindo a foto: ' + error.message); return undefined; }
+  return sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+}
+
+async function saveEdit(placeId){
+  const scoreVal = document.getElementById('editscore-'+placeId).value;
+  const igVal = document.getElementById('editig-'+placeId).value.trim();
+  const latVal = document.getElementById('editlat-'+placeId).value.trim();
+  const lngVal = document.getElementById('editlng-'+placeId).value.trim();
+  const removePhoto = document.getElementById('editphotorm-'+placeId) && document.getElementById('editphotorm-'+placeId).checked;
+  const uploadedUrl = await uploadPhotoIfAny(placeId, 'editphoto-'+placeId);
+  const payload = {
+    name: document.getElementById('editname-'+placeId).value.trim(),
+    location: document.getElementById('editloc-'+placeId).value.trim() || null,
+    place_type: document.getElementById('editptype-'+placeId).value,
+    vegan_status: document.getElementById('editvegan-'+placeId).value,
+    city: document.getElementById('editcity-'+placeId).value,
+    cuisine_tag: document.getElementById('editcuisine-'+placeId).value.trim() || null,
+    score: scoreVal === '' ? null : Number(scoreVal),
+    maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
+    website_url: document.getElementById('editweb-'+placeId).value.trim() || null,
+    instagram_url: igVal || null,
+    instagram_verified: !!igVal,
+    lat: latVal === '' ? null : Number(latVal),
+    lng: lngVal === '' ? null : Number(lngVal),
+    note: document.getElementById('editnote-'+placeId).value
+  };
+  if(uploadedUrl) payload.photo_url = uploadedUrl;
+  else if(removePhoto) payload.photo_url = null;
+  const { error } = await sb.from('places').update(payload).eq('id', placeId);
+  if(error){ alert('Erro ao gardar: ' + error.message); return; }
+  await loadData();
+}
+
+async function deletePlace(placeId, name){
+  if(!confirm(`Eliminar "${name}" da lista?`)) return;
+  const { error } = await sb.from('places').delete().eq('id', placeId);
+  if(error){ alert('Erro ao eliminar: ' + error.message); return; }
+  await loadData();
+}
+
+async function addPlace(sectionKey){
+  const uid = 'new-' + sectionKey;
+  const name = document.getElementById(`${uid}-name`).value.trim();
+  if(!name){ alert('Pon polo menos o nome.'); return; }
+  const scoreVal = document.getElementById(`${uid}-score`).value;
+  const igVal = document.getElementById(`${uid}-ig`).value.trim();
+  const latVal = document.getElementById(`${uid}-lat`).value.trim();
+  const lngVal = document.getElementById(`${uid}-lng`).value.trim();
+  const maxSort = Math.max(0, ...placesData.filter(p=>p.place_type===sectionKey).map(p=>p.sort_order||0));
+  let photoUrl = null;
+  const photoFile = document.getElementById(`${uid}-photo`).files[0];
+  if(photoFile){
+    let blob;
+    try { blob = await resizeImageFile(photoFile); } catch(err){ alert('Erro procesando a imaxe: ' + err.message); return; }
+    const path = `new-${Date.now()}.jpg`;
+    const { error: upErr } = await sb.storage.from('place-photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+    if(upErr){ alert('Erro subindo a foto: ' + upErr.message); return; }
+    photoUrl = sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+  }
+  const payload = {
+    name,
+    location: document.getElementById(`${uid}-loc`).value.trim() || null,
+    place_type: sectionKey,
+    vegan_status: document.getElementById(`${uid}-vegan`).value,
+    city: currentCity,
+    cuisine_tag: document.getElementById(`${uid}-cuisine`).value.trim() || null,
+    score: scoreVal === '' ? null : Number(scoreVal),
+    maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
+    website_url: document.getElementById(`${uid}-web`).value.trim() || null,
+    instagram_url: igVal || null,
+    instagram_verified: !!igVal,
+    lat: latVal === '' ? null : Number(latVal),
+    lng: lngVal === '' ? null : Number(lngVal),
+    photo_url: photoUrl,
+    note: document.getElementById(`${uid}-note`).value,
+    sort_order: maxSort + 1,
+    category: 'comida',
+    status: 'opciones'
+  };
+  const { error } = await sb.from('places').insert(payload);
+  if(error){ alert('Erro ao engadir: ' + error.message); return; }
+  await loadData();
+}
+
+sb.auth.onAuthStateChange(async (_event, session) => {
+  currentUser = session ? session.user : null;
+  await checkAdminFromUser();
+});
+</script>
+
+</body>
+</html>
