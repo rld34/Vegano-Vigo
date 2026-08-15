@@ -20,7 +20,8 @@
   a{color:inherit;}
   button{font-family:inherit;cursor:pointer;}
 
-  .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 22px;display:flex;justify-content:flex-end;align-items:center;gap:10px;}
+  .topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .city-select{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 10px;border-radius:100px;border:1px solid var(--moss);background:var(--card);color:var(--moss);}
   .admin-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
   .admin-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:100px;border:1px solid var(--moss);background:transparent;color:var(--moss);}
   .admin-btn:hover{background:var(--moss);color:var(--paper);}
@@ -115,6 +116,7 @@
 <body>
 
 <div class="topbar">
+  <select class="city-select" id="citySelect"></select>
   <div class="admin-pill" id="adminPill"></div>
   <button class="admin-btn" id="adminBtn">Acceso admin</button>
 </div>
@@ -132,8 +134,8 @@
     <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20Z"/><path d="M4 20c2-4 5-7 9-9"/></svg>
     Caderno vivo · Vigo e arredores
   </div>
-  <h1>Vigo <em>vegano</em></h1>
-  <p class="lede">Catálogo persoal de sitios vexetais para comer en Vigo, con nota sobre 10 posta por Nerea e Ricardo.</p>
+  <h1><em>Vegano</em> en <span id="cityName">Vigo</span></h1>
+  <p class="lede">Catálogo persoal de sitios vexetais para comer en <span id="cityName2">Vigo</span>, con nota sobre 10 posta por Nerea e Ricardo.</p>
   <div class="note">As notas e fichas son só de Nerea e Ricardo — non hai comentarios abertos ao público nesta web.</div>
 </div>
 
@@ -183,6 +185,8 @@ const PLACE_TYPES = [
 let currentUser = null;
 let isAdmin = false;
 let placesData = [];
+let citiesData = [];
+let currentCity = localStorage.getItem('vv-city') || 'vigo';
 let vFilter = 'all';
 let tFilter = 'all';
 let searchTerm = '';
@@ -192,8 +196,33 @@ const igSearch = name => `https://www.google.com/search?q=${encodeURIComponent(n
 const escapeHTML = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
 const escapeAttr = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
+async function loadCities(){
+  const { data, error } = await sb.from('cities').select('*').order('sort_order');
+  if(error || !data || !data.length){ citiesData = [{id:'vigo', name:'Vigo'}]; }
+  else { citiesData = data; }
+  if(!citiesData.find(c => c.id === currentCity)) currentCity = citiesData[0].id;
+  const sel = document.getElementById('citySelect');
+  sel.innerHTML = citiesData.map(c => `<option value="${c.id}" ${c.id===currentCity?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  updateCityCopy();
+}
+
+function updateCityCopy(){
+  const city = citiesData.find(c => c.id === currentCity);
+  const name = city ? city.name : 'Vigo';
+  document.getElementById('cityName').textContent = name;
+  document.getElementById('cityName2').textContent = name;
+  document.title = `${name} vegano — sitios vexetais para comer`;
+}
+
+document.getElementById('citySelect').addEventListener('change', async (e) => {
+  currentCity = e.target.value;
+  localStorage.setItem('vv-city', currentCity);
+  updateCityCopy();
+  await loadData();
+});
+
 async function loadData(){
-  const { data: places, error } = await sb.from('places').select('*').order('place_type').order('sort_order');
+  const { data: places, error } = await sb.from('places').select('*').eq('city', currentCity).order('place_type').order('sort_order');
   if(error){ document.getElementById('loadingMsg').textContent = 'Erro cargando datos: ' + error.message; return; }
   placesData = places;
   render();
@@ -239,6 +268,10 @@ function cardHTML(place){
           </select>
         </div>
       </div>
+      <label>Cidade</label>
+      <select id="editcity-${place.id}">
+        ${citiesData.map(c=>`<option value="${c.id}" ${c.id===place.city?'selected':''}>${escapeHTML(c.name)}</option>`).join('')}
+      </select>
       <label>Tipo de comida (ex. pizza, ramen, hamburguesas)</label>
       <input type="text" id="editcuisine-${place.id}" value="${escapeAttr(place.cuisine_tag||'')}">
       <label>Nota (0–10, deixa baleiro se aínda non probastes)</label>
@@ -306,6 +339,11 @@ function getFilteredSorted(items){
 function render(){
   const main = document.getElementById('main');
   main.innerHTML = '';
+  if(!placesData.length && !isAdmin){
+    const city = citiesData.find(c => c.id === currentCity);
+    main.innerHTML = `<div class="empty-msg" style="text-align:center;padding:40px 0;font-size:13px;">Aínda non hai fichas para ${escapeHTML(city ? city.name : '')}. Volve pronto 🌱</div>`;
+    return;
+  }
   PLACE_TYPES.forEach((sec, i) => {
     const all = placesData.filter(p => p.place_type === sec.key);
     const items = getFilteredSorted(all);
@@ -380,6 +418,7 @@ async function saveEdit(placeId){
     location: document.getElementById('editloc-'+placeId).value.trim() || null,
     place_type: document.getElementById('editptype-'+placeId).value,
     vegan_status: document.getElementById('editvegan-'+placeId).value,
+    city: document.getElementById('editcity-'+placeId).value,
     cuisine_tag: document.getElementById('editcuisine-'+placeId).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById('editmaps-'+placeId).value.trim() || null,
@@ -425,6 +464,7 @@ async function addPlace(sectionKey){
     location: document.getElementById(`${uid}-loc`).value.trim() || null,
     place_type: sectionKey,
     vegan_status: document.getElementById(`${uid}-vegan`).value,
+    city: currentCity,
     cuisine_tag: document.getElementById(`${uid}-cuisine`).value.trim() || null,
     score: scoreVal === '' ? null : Number(scoreVal),
     maps_url: document.getElementById(`${uid}-maps`).value.trim() || null,
@@ -513,7 +553,7 @@ let initialLoadDone = false;
 sb.auth.onAuthStateChange(async (_event, session) => {
   currentUser = session ? session.user : null;
   await checkAdminFromUser();
-  if(!initialLoadDone){ initialLoadDone = true; loadData(); }
+  if(!initialLoadDone){ initialLoadDone = true; await loadCities(); loadData(); }
 });
 </script>
 
