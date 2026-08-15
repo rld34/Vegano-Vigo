@@ -39,7 +39,11 @@
   .scroll-cue{position:absolute;left:22px;bottom:28px;display:flex;align-items:center;gap:8px;font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);}
   .scroll-cue span{width:1px;height:28px;background:var(--ink-soft);display:block;animation:scrollcue 1.8s ease-in-out infinite;}
   @keyframes scrollcue{0%,100%{opacity:.25;transform:scaleY(.6);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}}
-  @media (max-width:640px){.scroll-cue{display:none;}}
+  @media (max-width:640px){
+    .scroll-cue{display:none;}
+    .hero h1{white-space:normal;font-size:clamp(46px,16vw,84px);line-height:.96;}
+    .city-menu-item{font-size:clamp(46px,16vw,84px);white-space:normal;}
+  }
 
   .city-switch{position:relative;display:inline-flex;align-items:baseline;gap:.02em;cursor:pointer;color:var(--ink);background-image:linear-gradient(var(--ink),var(--ink));background-repeat:no-repeat;background-position:0 92%;background-size:0% 2px;transition:background-size .35s cubic-bezier(.4,0,.2,1),color .3s ease;}
   .city-switch:hover, .city-switch.open{background-size:100% 2px;}
@@ -413,6 +417,7 @@ function fitHeroTitle(){
   const container = document.querySelector('.hero-inner');
   if(!h1 || !container) return;
   h1.style.fontSize = '';
+  if(window.innerWidth <= 640) return; // mobile: let it wrap and stay large, no shrink-to-one-line
   requestAnimationFrame(() => {
     const maxWidth = container.clientWidth;
     let size = parseFloat(getComputedStyle(h1).fontSize);
